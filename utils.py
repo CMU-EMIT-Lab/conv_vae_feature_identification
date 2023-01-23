@@ -116,7 +116,9 @@ def save_loss_plot(train_loss, valid_loss, name):
 
 def save_model(model, name):
     model_id = "{}.pth"
+    my_model = f'saved_{name}'
     model.save_weights(f'../outputs/{name}/{model_id}')
+    model.save(f'../outputs/{name}/{my_model}.h5')
 
 
 def get_dataset(parent_dir, sub_dir, image_size, batch_size):
@@ -141,3 +143,9 @@ def update_pbar(e_loss, r_loss, k_loss, pbar):
     pbar.set_postfix_str(
         f"ELBO Loss: {e_loss} - Reconstruction Loss: {r_loss} - KL Loss: {k_loss}")
     return pbar
+
+
+def load_model(name):
+    my_model = f'saved_{name}'
+    model = tf.keras.models.load_model(f'../outputs/{name}/{my_model}.h5')
+    return model
