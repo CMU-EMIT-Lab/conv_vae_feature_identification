@@ -6,8 +6,8 @@ import pandas as pd
 
 
 def check_dir(name):
-    if not path.isdir(f'../CVAE_Tensorflow/outputs/{name}'):
-        mkdir(f'../CVAE_Tensorflow/outputs/{name}')
+    if not path.isdir(f'../outputs/{name}'):
+        mkdir(f'../outputs/{name}')
 
 
 def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, name):
@@ -24,12 +24,12 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
-    plt.savefig(f'../CVAE_Tensorflow/outputs/{name}/output{epoch}.jpg')
+    plt.savefig(f'../outputs/{name}/output{epoch}.jpg')
     plt.show()
 
     if epoch == max_epoch:
         df = pd.DataFrame(listed_z)
-        df.to_csv(f'../CVAE_Tensorflow/outputs/{name}/z_pred_sample.csv')
+        df.to_csv(f'../outputs/{name}/z_pred_sample.csv')
 
 
 def generate_latent_iteration(model, epoch, val_ds, log_list, name):
@@ -61,14 +61,14 @@ def generate_latent_iteration(model, epoch, val_ds, log_list, name):
         # ax.set_axis_off()
         plt.tight_layout()
         plt.savefig(
-            f'../CVAE_Tensorflow/outputs/{name}/Latent_Space_Vectors_{lists[0]}_{lists[1]}_Epoch_{epoch}',
+            f'../outputs/{name}/Latent_Space_Vectors_{lists[0]}_{lists[1]}_Epoch_{epoch}',
             dpi=100)
         plt.close()
         count += 1
 
 
 def printer(model, branch, name):
-    with open(f'../CVAE_Tensorflow/outputs/{name}/{branch}_summary.txt', 'a') as f:
+    with open(f'../outputs/{name}/{branch}_summary.txt', 'a') as f:
         model.summary(print_fn=lambda x: f.write(x + '\n'))
 
 
@@ -90,7 +90,7 @@ def input_images(image, name, label):
         plt.imshow(image[i].numpy() / 255, cmap=plt.get_cmap('Greys_r'))
         plt.title(int(label[i] + 1), size=32)
         plt.axis("off")
-    plt.savefig(f'../CVAE_Tensorflow/outputs/{name}/input_example.png', dpi=100)
+    plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
 
 
@@ -110,18 +110,18 @@ def save_loss_plot(train_loss, valid_loss, name):
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig(f'../CVAE_Tensorflow/outputs/{name}/loss.jpg')
+    plt.savefig(f'../outputs/{name}/loss.jpg')
     plt.show()
 
 
 def save_model(model, name):
     model_id = "{}.pth"
-    model.save_weights(f'../CVAE_Tensorflow/outputs/{name}/{model_id}')
+    model.save_weights(f'../outputs/{name}/{model_id}')
 
 
 def get_dataset(parent_dir, sub_dir, image_size, batch_size):
     datagen = tf.keras.preprocessing.image_dataset_from_directory(
-        directory=f'../CVAE_Tensorflow/input/{parent_dir}/{sub_dir}/',
+        directory=f'../input/{parent_dir}/{sub_dir}/',
         color_mode='grayscale',
         labels='inferred',
         image_size=(image_size, image_size),

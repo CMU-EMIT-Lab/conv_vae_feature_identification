@@ -21,7 +21,7 @@ parent_dir = 'HighCycleLowCycle_Regime'
 check_dir(name)
 
 # set the learning parameters
-epochs = 20
+epochs = 2
 batch_size = 32
 image_size = 128
 latent_dim = 32
