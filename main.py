@@ -59,7 +59,7 @@ def train_a_model(parent_directory, sub_directory, check_parameters):
     return model
 
 
-def find_latent_dims(model, test_sample, test_label):
+def find_latent_dims(model):
 
     return
 
