@@ -1,6 +1,6 @@
 import tensorflow as tf
 import matplotlib
-from utils import check_dir, load_model
+from utils import check_dir
 from model import CVAE, Encoder, Decoder
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
@@ -81,5 +81,4 @@ if __name__ == "__main__":
             # show_latent_gif=True
         )
         test_ds, train_ds = load_data(parent_dir)
-        cvae = load_model(sub_dir)
     exit()
