@@ -56,10 +56,10 @@ def train_a_model(parent_directory, sub_directory, check_parameters):
         e_loss_record=e_loss_record,
         params=train_params
     )
-    return model
+    return model, test_set, train_set
 
 
-def find_latent_dims(model):
+def find_latent_dims(model, test_set):
 
     return
 
@@ -67,7 +67,19 @@ def find_latent_dims(model):
 if __name__ == "__main__":
     if new_model:
         check_params = False
-        cvae = train_a_model(parent_dir, sub_dir, check_params)
+        cvae, test_ds, train_ds = train_a_model(parent_dir, sub_dir, check_params)
     else:
+        from train import load_data, TrainParams
+        load_params = TrainParams(
+            parent_dir=parent_dir,
+            name=sub_dir,
+            epochs=2,
+            batch_size=16,
+            image_size=128,
+            latent_dim=32,
+            num_examples_to_generate=16,
+            # show_latent_gif=True
+        )
+        test_ds, train_ds = load_data(parent_dir)
         cvae = load_model(sub_dir)
     exit()
