@@ -1,9 +1,9 @@
 import tensorflow as tf
 
 
-def train(model, train_set):
+def train(model, train_set, lr):
     for train_x, train_y, train_f in train_set:
-        model.train_step(model=model, x=train_x, optimizer=tf.keras.optimizers.Adam(learning_rate=0.001))
+        model.train_step(model=model, x=train_x, optimizer=tf.keras.optimizers.Adam(learning_rate=lr))
     reco_loss = tf.keras.metrics.Mean()
     elbo_loss = tf.keras.metrics.Mean()
     kl_loss = tf.keras.metrics.Mean()

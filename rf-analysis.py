@@ -1,5 +1,6 @@
 import numpy as np
 import sklearn.ensemble as sk_e
+import sklearn.metrics as sk_m
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -19,45 +20,78 @@ def get_encoding(model, ds):
     #    all_encodings - an array of shape [n-images x n-latent_dimensions]
     #    all_labels - an array of shape [n-images x 1]
     #    all_files - an array of shape [n-images x 1]
+    categories = list(np.unique(all_labels))
+    partitioned_encodings = {}
+    partitioned_files = {}
+    for c in categories:
+        partitioned_encodings[c] = all_encodings[all_labels == c, :]
+        partitioned_files[c] = all_files[all_labels == c]
 
-    return all_encodings, all_labels, all_files
+    return all_encodings, all_labels, all_files, partitioned_encodings, partitioned_files
 
 
-def random_forest(x_train, y_train, x_test, y_test):
+def random_forest(x_train, y_train, x_test, y_test, params):
+    from utils import save_forest
     # x == encodings, y == labels, f == filenames
     regressor = sk_e.RandomForestRegressor()  # You can edit the regressor if you want, running with default for now
     regressor.fit(x_train, y_train)
+    prediction = regressor.predict(x_test)
+    mse = sk_m.mean_squared_error(y_test, prediction)
+
+    # Importance is Mean Decrease in Impurity
+    # Mean decrease in impurity is the total decrease in node impurity
+    # meaning the proportion of samples that reach that node averaged over all trees
+    # which should boost the identified node to the most important spot on the tree
     find_importance = regressor.feature_importances_
-    std = np.std([tree.feature_importances_ for tree in regressor.estimators_], axis=0)
 
-    feature_names = [int(i) for i in list(np.linspace(0, x_train.shape[1], x_train.shape[1]-1))]
-    forest_importance = pd.Series(find_importance, index=feature_names)
+    # Feature names will be the number of latent dimensions we encoded to (0 index)
+    feature_names = [int(i) for i in list(np.linspace(0, x_train.shape[1]-1, x_train.shape[1]))]
+    forest_importance = pd.Series(find_importance, index=feature_names).sort_values(ascending=False)
 
-    fig, ax = plt.subplots()
-    forest_importance.plot.bar(yerr=std, ax=ax)
-    ax.set_title("Feature importance using MDI")
-    ax.set_ylabel("Mean decrease in impurity")
-    fig.tight_layout()
-    return
+    save_forest(forest_importance, find_importance, mse**0.5, params.name)
+    return forest_importance, regressor
+
+
+def show_split(parted_encodings, forest_importance, regressor, params):
+    # most important feature
+    dim = forest_importance.index[0]
+
+    # First, we need a new prediction that we can show
+    trees = [tree for tree in regressor.estimators_]
+    threshold = []
+    for tree in trees:
+        split_val = tree.tree_.threshold[0]
+        threshold.append(split_val)
+
+    # This will only every show two classifications by design
+    colors = ['#595959', '#bfbfbf']
+    for c in parted_encodings:
+        plt.hist(parted_encodings[c][:, dim], color=colors[int(c)], edgecolor='black', bins=20, label=f'Label: {c}')
+    plt.axvline(np.min(threshold), color='r', linestyle='dashed', linewidth=1, label='Decision Threshold Limits')
+    plt.axvline(np.mean(threshold), color='k', linestyle='solid', linewidth=1, label='Average Decision Threshold')
+    plt.axvline(np.max(threshold), color='r', linestyle='dashed', linewidth=1)
+    plt.xticks
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
-    import sys
     from train import TrainParams
     from main import train_a_model
 
     new_model = True
-    parent_dir = 'HighCycleLowCycleNoBorder_Regime'
+    parent_dir = 'data_binary_watermark'
     sub_dir = 'my_model'
 
     check_params = TrainParams(
         parent_dir=parent_dir,
         name=sub_dir,
-        epochs=1,
-        batch_size=16,
+        epochs=15,
+        batch_size=64,
         image_size=32,
         latent_dim=32,
         num_examples_to_generate=16,
+        learning_rate=0.001
         # show_latent_gif=True
     )
 
@@ -66,11 +100,15 @@ if __name__ == "__main__":
         cvae, test_ds, train_ds = train_a_model(check_params)
 
         # Get arrays of encoded data from model
-        train_encodings, train_labels, train_files = get_encoding(cvae, train_ds)
-        test_encodings, test_labels, test_files = get_encoding(cvae, test_ds)
+        train_encodings, train_labels, train_files, split_train_encodings, _ = get_encoding(cvae, train_ds)
+        test_encodings, test_labels, test_files, _, _ = get_encoding(cvae, test_ds)
 
         # Run arrays through random forest regression to figure out if any can separate the labels
-        random_forest(train_encodings, train_labels, test_encodings, test_labels)
-
-    else:
-        sys.exit()
+        valuable_encodings, forest_model = random_forest(
+            train_encodings,
+            train_labels,
+            test_encodings,
+            test_labels,
+            check_params
+        )
+        show_split(split_train_encodings, valuable_encodings, forest_model, check_params)

@@ -136,3 +136,23 @@ def update_pbar(e_loss, r_loss, k_loss, pbar):
     pbar.set_postfix_str(
         f"ELBO Loss: {e_loss} - Reconstruction Loss: {r_loss} - KL Loss: {k_loss}")
     return pbar
+
+
+def save_forest(forest, importance, mse, name):
+    forest.to_csv(f'../outputs/{name}/ranked_latent_dims.csv')
+
+    # Visualize the important encodings
+    fig, ax = plt.subplots()
+    forest.plot.bar(ax=ax, color='gray')
+    ax.set_title(f"Feature importance using MDI - RMSE = {mse}", fontsize=18)
+    ax.set_ylabel("Mean decrease in impurity", fontsize=16)
+    ax.set_xlabel("Latent Dimension", fontsize=16)
+    ax.set_xlim([-0.5, 5.5])
+    ax.set_ylim([0, np.max(importance)+np.max(importance)*0.1])
+    ax.xaxis.label.set_color('black')
+    ax.yaxis.label.set_color('black')
+    ax.tick_params(axis='x', colors='black', labelsize=14)
+    ax.tick_params(axis='y', colors='black', labelsize=14)
+    fig.tight_layout()
+    plt.savefig(f'../outputs/{name}/ranked_latent_dims.jpg', transparent=True, dpi=100)
+    plt.show()

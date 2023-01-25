@@ -53,6 +53,7 @@ if __name__ == "__main__":
             image_size=128,
             latent_dim=32,
             num_examples_to_generate=16,
+            learning_rate=0.001
             # show_latent_gif=True
         )
         cvae, test_ds, train_ds = train_a_model(check_params)
@@ -65,6 +66,7 @@ if __name__ == "__main__":
             image_size=128,
             latent_dim=32,
             num_examples_to_generate=16,
+            learning_rate=0.001
             # show_latent_gif=True
         )
         test_ds, train_ds = load_data(parent_dir)
