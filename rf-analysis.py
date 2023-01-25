@@ -1,8 +1,5 @@
-import numpy as np
 import sklearn.ensemble as sk_e
 import sklearn.metrics as sk_m
-import pandas as pd
-import matplotlib.pyplot as plt
 
 
 def get_encoding(model, ds):
@@ -52,32 +49,10 @@ def random_forest(x_train, y_train, x_test, y_test, params):
     return forest_importance, regressor
 
 
-def show_split(parted_encodings, forest_importance, regressor, params):
-    # most important feature
-    dim = forest_importance.index[0]
-
-    # First, we need a new prediction that we can show
-    trees = [tree for tree in regressor.estimators_]
-    threshold = []
-    for tree in trees:
-        split_val = tree.tree_.threshold[0]
-        threshold.append(split_val)
-
-    # This will only every show two classifications by design
-    colors = ['#595959', '#bfbfbf']
-    for c in parted_encodings:
-        plt.hist(parted_encodings[c][:, dim], color=colors[int(c)], edgecolor='black', bins=20, label=f'Label: {c}')
-    plt.axvline(np.min(threshold), color='r', linestyle='dashed', linewidth=1, label='Decision Threshold Limits')
-    plt.axvline(np.mean(threshold), color='k', linestyle='solid', linewidth=1, label='Average Decision Threshold')
-    plt.axvline(np.max(threshold), color='r', linestyle='dashed', linewidth=1)
-    plt.xticks
-    plt.legend()
-    plt.show()
-
-
 if __name__ == "__main__":
     from train import TrainParams
     from main import train_a_model
+    from utils import *
 
     new_model = True
     parent_dir = 'data_binary_watermark'
@@ -112,3 +87,4 @@ if __name__ == "__main__":
             check_params
         )
         show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
+        save_tree(forest_model, check_params)
