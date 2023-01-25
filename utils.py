@@ -4,7 +4,7 @@ import matplotlib as mpl
 from os import path, mkdir
 import tensorflow as tf
 import pandas as pd
-mpl.pyplot.rcParams.update({'font.size': 20})
+mpl.pyplot.rcParams.update({'font.size': 12})
 mpl.pyplot.rcParams.update({'font.family': 'sans'})
 
 
