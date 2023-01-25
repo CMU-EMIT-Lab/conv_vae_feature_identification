@@ -4,7 +4,16 @@ from utils import *
 
 
 class TrainParams:
-    def __init__(self, epochs, parent_dir, name, image_size, batch_size, latent_dim, num_examples_to_generate):
+    def __init__(self,
+                 epochs,
+                 parent_dir,
+                 name,
+                 image_size,
+                 batch_size,
+                 latent_dim,
+                 num_examples_to_generate,
+                 learning_rate
+                 ):
         self.epochs = epochs
         self.parent_dir = parent_dir
         self.name = name
@@ -12,6 +21,7 @@ class TrainParams:
         self.batch_size = batch_size
         self.latent_dim = latent_dim
         self.num_examples_to_generate = num_examples_to_generate
+        self.learning_rate = learning_rate
 
 
 def load_data(params):
@@ -97,7 +107,7 @@ def train_model(
     for epoch in pbar:
         # Train the model
         reco_loss, elbo_loss, kl_loss = train(
-            model, train_set
+            model, train_set, params.learning_rate
         )
 
         # Validate the model
@@ -120,9 +130,8 @@ def train_model(
         if epoch % 10 == 0 or epoch == 1 or epoch == params.epochs:
             save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
     # generate_latent_iteration(model, epoch, test_set, log_lists, name)
-    save_model(model, params.name)
     print('TRAINING COMPLETE')
-    return model
+    return model, test_set, train_set
 
 
 if __name__ == "__main__":
@@ -134,7 +143,8 @@ if __name__ == "__main__":
         image_size=128,
         latent_dim=32,
         num_examples_to_generate=16,
+        learning_rate=0.001
         # show_latent_gif=True
     )
     from main import train_a_model
-    train_a_model(parent_directory='HighCycleLowCycle_Regime', sub_directory='my_model', check_parameters=check_params)
+    train_a_model(train_params=check_params)
