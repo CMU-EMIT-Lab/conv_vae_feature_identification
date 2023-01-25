@@ -5,11 +5,10 @@ from model import CVAE, Encoder, Decoder
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
-
 matplotlib.style.use('ggplot')
 
 new_model = True
-parent_dir = 'HighCycleLowCycle_Regime'
+parent_dir = 'HighCycleLowCycleNoBorder_Regime'
 sub_dir = 'my_model'
 
 
@@ -81,4 +80,6 @@ if __name__ == "__main__":
             # show_latent_gif=True
         )
         test_ds, train_ds = load_data(parent_dir)
+
+
     exit()
