@@ -1,4 +1,17 @@
 # rapid_feature_identification
+The purpose of this code is to rapidly identify features in micrographs (or images) that can be used to \
+separate data per a user-identified classification criteria.\
+\
+Data must be formatted like so for loading:\
+\
+Parent folder (PF): \
+PF - rapid_feature_identification - py files \
+PF - Inputs - train - class 0 - (class 0 training images) \
+PF - Inputs - train - class 1 - (class 1 training images) \
+PF - Inputs - val - class 0 - (class 0 test images) \
+PF - Inputs - val - class 1 - (class 1 test images) \
+PF - Outputs \
+\
 
 ## Main.py - Controller for all scripts, will be implemnted in GUI at later date
 
