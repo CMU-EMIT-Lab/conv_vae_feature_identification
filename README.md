@@ -1,4 +1,6 @@
 # rapid_feature_identification
+Created by: William Frieden Templeton \
+Date: 25 January 2023 \
 The purpose of this code is to rapidly identify features in micrographs (or images) that can be used to \
 separate data per a user-identified classification criteria.\
 \
@@ -12,7 +14,6 @@ PF - Inputs - val - class 0 - (class 0 test images) \
 PF - Inputs - val - class 1 - (class 1 test images) \
 PF - Outputs \
 \
-
 ## Main.py - Controller for all scripts, will be implemnted in GUI at later date
 
 ## train_model Segment: 
