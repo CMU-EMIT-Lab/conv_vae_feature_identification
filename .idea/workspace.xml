@@ -39,14 +39,11 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.rf-analysis">
+  <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rapid_feature_identification" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -62,7 +59,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="rf-analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="randomforest" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="rapid_feature_identification" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -72,7 +69,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/rf-analysis.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/randomforest.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -105,8 +102,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.rf-analysis" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.randomforest" />
       </list>
     </recent_temporary>
   </component>
@@ -124,7 +121,7 @@
       <workItem from="1674504733801" duration="3425000" />
       <workItem from="1674663892116" duration="324000" />
       <workItem from="1674664247283" duration="13628000" />
-      <workItem from="1674677914345" duration="1892000" />
+      <workItem from="1674677914345" duration="2773000" />
     </task>
     <servers />
   </component>
