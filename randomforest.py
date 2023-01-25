@@ -1,5 +1,6 @@
 import sklearn.ensemble as sk_e
 import sklearn.metrics as sk_m
+from utils import *
 
 
 def get_encoding(model, ds):
@@ -52,7 +53,6 @@ def random_forest(x_train, y_train, x_test, y_test, params):
 if __name__ == "__main__":
     from train import TrainParams
     from main import train_a_model
-    from utils import *
 
     new_model = True
     parent_dir = 'data_binary_watermark'
