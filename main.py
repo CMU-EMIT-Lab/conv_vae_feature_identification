@@ -12,24 +12,8 @@ parent_dir = 'HighCycleLowCycleNoBorder_Regime'
 sub_dir = 'my_model'
 
 
-def train_a_model(parent_directory, sub_directory, check_parameters):
-    from train import TrainParams, load_data, sample_inputs, initialize_training, train_model
-
-    # Fill out the parameters we are testing if not already defined
-    if not check_parameters:
-        train_params = TrainParams(
-            parent_dir=parent_directory,
-            name=sub_directory,
-            epochs=2,
-            batch_size=16,
-            image_size=128,
-            latent_dim=32,
-            num_examples_to_generate=16,
-            # show_latent_gif=True
-        )
-    else:
-        train_params = check_parameters
-
+def train_a_model(train_params):
+    from train import load_data, sample_inputs, initialize_training, train_model
     check_dir(train_params.name)
 
     model = CVAE(
@@ -58,17 +42,21 @@ def train_a_model(parent_directory, sub_directory, check_parameters):
     return model, test_set, train_set
 
 
-def find_latent_dims(model, test_set):
-
-    return
-
-
 if __name__ == "__main__":
+    from train import load_data, TrainParams
     if new_model:
-        check_params = False
-        cvae, test_ds, train_ds = train_a_model(parent_dir, sub_dir, check_params)
+        check_params = TrainParams(
+            parent_dir=parent_dir,
+            name=sub_dir,
+            epochs=2,
+            batch_size=16,
+            image_size=128,
+            latent_dim=32,
+            num_examples_to_generate=16,
+            # show_latent_gif=True
+        )
+        cvae, test_ds, train_ds = train_a_model(check_params)
     else:
-        from train import load_data, TrainParams
         load_params = TrainParams(
             parent_dir=parent_dir,
             name=sub_dir,
@@ -80,6 +68,3 @@ if __name__ == "__main__":
             # show_latent_gif=True
         )
         test_ds, train_ds = load_data(parent_dir)
-
-
-    exit()
