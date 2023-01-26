@@ -147,7 +147,7 @@ def save_forest(forest, importance, mse, name):
     # Visualize the important encodings
     fig, ax = plt.subplots()
     forest.plot.bar(ax=ax, color='gray')
-    ax.set_title(f"Feature importance using MDI - RMSE = {mse}", fontsize=18)
+    ax.set_title(f"Feature importance using MDI - rMSE = {np.round(mse, 2)}", fontsize=18)
     ax.set_ylabel("Mean decrease in impurity", fontsize=16)
     ax.set_xlabel("Latent Dimension", fontsize=16)
     ax.set_xlim([-0.5, 5.5])
@@ -203,3 +203,5 @@ def save_tree(regressor, params):
     sk_t.export_graphviz(tree, out_file=f'../outputs/{params.name}/tree.dot')
     (graph,) = pydot.graph_from_dot_file(f'../outputs/{params.name}/tree.dot')  # Write graph to a png file
     graph.write_png(f'../outputs/{params.name}/tree.png')
+
+# def pull_key_features(img, name):

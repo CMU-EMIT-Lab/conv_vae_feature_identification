@@ -47,8 +47,8 @@ if __name__ == "__main__":
         check_params = TrainParams(
             parent_dir=parent_dir,
             name=sub_dir,
-            epochs=20,
-            batch_size=16,
+            epochs=75,
+            batch_size=32,
             image_size=32,
             latent_dim=32,
             num_examples_to_generate=16,

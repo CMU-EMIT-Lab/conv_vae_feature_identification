@@ -161,6 +161,7 @@ class CVAE(tf.keras.Model):
         #   a) the log probability of z under the q distribution \(norm gaussian about input)
         log_pz = CVAE.log_normal_pdf(z_sample, 0., 2.)
         #   b) the log probability of z under the p distribution (norm gaussian about 0-1)
+        #   c) I want KL loss to be underrepresented in this model because we would like a distribution to form
         kl = log_qzx-log_pz
 
         # (4) Probability of reconstruction

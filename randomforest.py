@@ -31,7 +31,7 @@ def get_encoding(model, ds):
 def random_forest(x_train, y_train, x_test, y_test, params):
     from utils import save_forest
     # x == encodings, y == labels, f == filenames
-    regressor = sk_e.RandomForestRegressor()  # You can edit the regressor if you want, running with default for now
+    regressor = sk_e.RandomForestRegressor(n_estimators=200, max_depth=4)  # You can edit the regressor if you want, running with default for now
     regressor.fit(x_train, y_train)
     prediction = regressor.predict(x_test)
     mse = sk_m.mean_squared_error(y_test, prediction)
