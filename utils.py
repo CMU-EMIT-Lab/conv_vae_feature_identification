@@ -4,7 +4,7 @@ import matplotlib as mpl
 from os import path, mkdir
 import tensorflow as tf
 import pandas as pd
-mpl.pyplot.rcParams.update({'font.size': 20})
+mpl.pyplot.rcParams.update({'font.size': 12})
 mpl.pyplot.rcParams.update({'font.family': 'sans'})
 
 
@@ -199,7 +199,7 @@ def show_split(parted_encodings, forest_importance, regressor, params):
 def save_tree(regressor, params):
     import sklearn.tree as sk_t
     import pydot  # Pull out one tree from the forest
-    tree = regressor.estimators_[5]  # Export the image to a dot file
-    sk_t.export_graphviz(tree, out_file='tree.dot')
-    (graph,) = pydot.graph_from_dot_file('tree.dot')  # Write graph to a png file
+    tree = regressor.estimators_[3]  # Export the image to a dot file
+    sk_t.export_graphviz(tree, out_file=f'../outputs/{params.name}/tree.dot')
+    (graph,) = pydot.graph_from_dot_file(f'../outputs/{params.name}/tree.dot')  # Write graph to a png file
     graph.write_png(f'../outputs/{params.name}/tree.png')

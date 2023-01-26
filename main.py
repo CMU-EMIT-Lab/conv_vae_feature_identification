@@ -85,4 +85,3 @@ if __name__ == "__main__":
         )
         show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
         save_tree(forest_model, check_params)
-
