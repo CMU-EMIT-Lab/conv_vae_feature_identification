@@ -5,8 +5,8 @@ from utils import *
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'data_binary_watermark'
-sub_dir = 'my_model'
+parent_dir = 'HighCycleLowCycleNoBorder_Regime'
+sub_dir = 'full_rf_test_model'
 
 
 def train_a_model(train_params):
@@ -44,10 +44,10 @@ if __name__ == "__main__":
     check_params = TrainParams(
         parent_dir=parent_dir,
         name=sub_dir,
-        epochs=20,
-        batch_size=32,
-        image_size=32,
-        latent_dim=32,
+        epochs=1000,
+        batch_size=128,
+        image_size=128,
+        latent_dim=1024,
         num_examples_to_generate=16,
         learning_rate=0.001
         # show_latent_gif=True
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     save_tree(forest_model, check_params)
 
     positive_features, negative_features = identify_files(
-        1,  # ID the classification you want features for, use numbering from input filepath (not 0-base shift)
+        0,
         train_encodings,
         train_labels,
         test_encodings,

@@ -52,7 +52,7 @@ def random_forest(x_train, y_train, x_test, y_test, params):
 
 
 def identify_files(classification, x_train, y_train, x_test, y_test, regressor):
-    classification = classification-1
+    classification = classification
     # Reduce this to the classification we're interested in identifying (we want to know what made something happen,
     # not why something didn't make something happen
     train_classified = y_train == classification
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
         save_tree(forest_model, check_params)
         positive_features, negative_features = identify_files(
-            1,
+            0,
             train_encodings,
             train_labels,
             test_encodings,

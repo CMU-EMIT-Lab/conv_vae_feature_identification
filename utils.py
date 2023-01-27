@@ -144,7 +144,7 @@ def show_split(parted_encodings, forest_importance, regressor, params):
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
-                color=colors[int(c)], edgecolor='black', bins=20, label=f'Label: {c}')
+                color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c}')
         plt.axvline(
             np.min(threshold[i]), color='k', linestyle='dashed', linewidth=1, label='Decision Threshold Limits'
         )
