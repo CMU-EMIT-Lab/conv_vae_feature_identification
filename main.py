@@ -45,9 +45,9 @@ if __name__ == "__main__":
         parent_dir=parent_dir,
         name=sub_dir,
         epochs=1000,
-        batch_size=128,
+        batch_size=16,
         image_size=128,
-        latent_dim=1024,
+        latent_dim=512,
         num_examples_to_generate=16,
         learning_rate=0.001
         # show_latent_gif=True
