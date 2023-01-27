@@ -46,7 +46,7 @@ if __name__ == "__main__":
         name=sub_dir,
         epochs=1000,
         batch_size=16,
-        image_size=128,
+        image_size=64,
         latent_dim=512,
         num_examples_to_generate=16,
         learning_rate=0.001
