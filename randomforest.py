@@ -10,9 +10,9 @@ def get_encoding(model, ds):
         mean, log_var = model.encode(img)  # encode the batch of images
         encoding.append(model.re_parameterize(mean, log_var))  # append the encoding into a list
         label.append(lab.numpy())  # append the corresponding label into a list
-        all_encodings = np.concatenate(encoding, axis=0)  # stack list into an array (n-images by n-latent_dimensions)
-        all_labels = np.concatenate(label, axis=0)  # stack labels into an array
-        all_files = file.numpy()  # stack files into an array
+    all_encodings = np.concatenate(encoding, axis=0)  # stack list into an array (n-images by n-latent_dimensions)
+    all_labels = np.concatenate(label, axis=0)  # stack labels into an array
+    all_files = file.numpy()  # stack files into an array
 
     # At this point, we should have three arrays:
     #    all_encodings - an array of shape [n-images x n-latent_dimensions]
@@ -31,7 +31,8 @@ def get_encoding(model, ds):
 def random_forest(x_train, y_train, x_test, y_test, params):
     from utils import save_forest
     # x == encodings, y == labels, f == filenames
-    regressor = sk_e.RandomForestRegressor(n_estimators=200, max_depth=4)  # You can edit the regressor if you want, running with default for now
+    # We want a low depth because we're trying to identify the key features - low overall RF accuracy is unimportant
+    regressor = sk_e.RandomForestRegressor(n_estimators=1000, max_depth=2)
     regressor.fit(x_train, y_train)
     prediction = regressor.predict(x_test)
     mse = sk_m.mean_squared_error(y_test, prediction)
@@ -48,6 +49,51 @@ def random_forest(x_train, y_train, x_test, y_test, params):
 
     save_forest(forest_importance, find_importance, mse**0.5, params.name)
     return forest_importance, regressor
+
+
+def identify_files(classification, x_train, y_train, x_test, y_test, regressor):
+    classification = classification-1
+    # Reduce this to the classification we're interested in identifying (we want to know what made something happen,
+    # not why something didn't make something happen
+    train_classified = y_train == classification
+    test_classified = y_test == classification
+
+    neg_classified_train_idx = [i for i, x in enumerate(train_classified[:]) if not x]
+    neg_classified_test_idx = [i for i, x in enumerate(test_classified[:]) if not x]
+    neg_clas_train = x_train[neg_classified_train_idx, :]
+    neg_clas_test = x_test[neg_classified_test_idx, :]
+
+    pos_classified_train_idx = [i for i, x in enumerate(train_classified[:]) if x]
+    pos_classified_test_idx = [i for i, x in enumerate(test_classified[:]) if x]
+    x_train = x_train[pos_classified_train_idx, :]
+    y_train = y_train[pos_classified_train_idx]
+    x_test = x_test[pos_classified_test_idx, :]
+    y_test = y_test[pos_classified_test_idx]
+
+    train_predict = np.round(regressor.predict(x_train), 0)  # we want the final prediction, not a ranking
+    test_predict = np.round(regressor.predict(x_test), 0)
+
+    # Make an array that shows where it predicted correctly
+    train_correct = train_predict == y_train
+    test_correct = test_predict == y_test
+
+    # Record the index where it is true (meaning it got it correct)
+    pos_train_idx = [i for i, x in enumerate(train_correct[:]) if x]
+    pos_test_idx = [i for i, x in enumerate(test_correct[:]) if x]
+    # Make array out of correct images
+    pos_enc_train = x_train[pos_train_idx, :]
+    pos_enc_test = x_test[pos_test_idx, :]
+
+    neg_train_idx = [i for i, x in enumerate(train_correct[:]) if not x]
+    neg_test_idx = [i for i, x in enumerate(test_correct[:]) if not x]
+    # Make array out of correct images
+    neg_enc_train = x_train[neg_train_idx, :]
+    neg_enc_test = x_test[neg_test_idx, :]
+
+    positive_stacked = np.vstack((pos_enc_train, pos_enc_test))
+    negative_stacked = np.vstack((neg_clas_train, neg_clas_test, neg_enc_train, neg_enc_test))
+
+    return positive_stacked, negative_stacked
 
 
 if __name__ == "__main__":
@@ -88,3 +134,11 @@ if __name__ == "__main__":
         )
         show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
         save_tree(forest_model, check_params)
+        positive_features, negative_features = identify_files(
+            1,
+            train_encodings,
+            train_labels,
+            test_encodings,
+            test_labels,
+            forest_model)
+        pull_key_features(positive_features, negative_features, forest_model, check_params.name)
