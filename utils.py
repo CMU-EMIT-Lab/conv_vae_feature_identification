@@ -35,41 +35,6 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
         df.to_csv(f'../outputs/{name}/z_pred_sample.csv')
 
 
-def generate_latent_iteration(model, epoch, val_ds, log_list, name):
-    z = []
-    c = []
-    for x, y, f in val_ds:
-        mean, log_var = model.encode(x)
-        # import ipdb; ipdb.set_trace()
-        z.append(model.reparameterize(mean, log_var))
-        c.append(y.numpy())
-        # noinspection PyUnboundLocalVariable
-        zp = np.concatenate(z, axis=0)
-        cpn = np.concatenate(c, axis=0)
-        colors = ['red', 'orange', 'green', 'blue', 'purple', 'yellow']
-        cp = [colors[int(i)] for i in cpn]
-
-    count = 0
-    for lists in log_list:
-        plt.figure(figsize=(12, 10))
-        # noinspection PyUnboundLocalVariable
-        plt.scatter((zp[:, lists[0]]-np.min(zp[:, lists[0]]))/(np.max(zp[:, lists[0]])-np.min(zp[:, lists[0]])),
-                    (zp[:, lists[1]]-np.min(zp[:, lists[1]]))/(np.max(zp[:, lists[1]])-np.min(zp[:, lists[1]])),
-                    color=cp, alpha=0.75)
-        plt.xlim([0, 1])
-        plt.ylim([0, 1])
-        plt.xlabel('Vector {}'.format(lists[0]), size=25)
-        plt.ylabel('Vector {}'.format(lists[1]), size=25)
-        plt.grid('off')
-        # ax.set_axis_off()
-        plt.tight_layout()
-        plt.savefig(
-            f'../outputs/{name}/Latent_Space_Vectors_{lists[0]}_{lists[1]}_Epoch_{epoch}',
-            dpi=100)
-        plt.close()
-        count += 1
-
-
 def printer(model, branch, name):
     with open(f'../outputs/{name}/{branch}_summary.txt', 'a') as f:
         model.summary(print_fn=lambda x: f.write(x + '\n'))
@@ -147,7 +112,7 @@ def save_forest(forest, importance, mse, name):
     # Visualize the important encodings
     fig, ax = plt.subplots()
     forest.plot.bar(ax=ax, color='gray')
-    ax.set_title(f"Feature importance using MDI - RMSE = {mse}", fontsize=18)
+    ax.set_title(f"MDI - rMSE = {np.round(mse, 2)}", fontsize=18)
     ax.set_ylabel("Mean decrease in impurity", fontsize=16)
     ax.set_xlabel("Latent Dimension", fontsize=16)
     ax.set_xlim([-0.5, 5.5])
@@ -179,7 +144,7 @@ def show_split(parted_encodings, forest_importance, regressor, params):
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
-                color=colors[int(c)], edgecolor='black', bins=20, label=f'Label: {c}')
+                color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c}')
         plt.axvline(
             np.min(threshold[i]), color='k', linestyle='dashed', linewidth=1, label='Decision Threshold Limits'
         )
@@ -203,3 +168,30 @@ def save_tree(regressor, params):
     sk_t.export_graphviz(tree, out_file=f'../outputs/{params.name}/tree.dot')
     (graph,) = pydot.graph_from_dot_file(f'../outputs/{params.name}/tree.dot')  # Write graph to a png file
     graph.write_png(f'../outputs/{params.name}/tree.png')
+
+
+def pull_key_features(useful_encodings, not_useful_encodings, model, name):
+    if not path.isdir(f'../features/{name}/useful/'):
+        mkdir(f'../features/{name}/useful/')
+    if not path.isdir(f'../features/{name}/not_useful/'):
+        mkdir(f'../features/{name}/not_useful/')
+
+    predictions = model.sample(useful_encodings)
+    plt.figure(figsize=(15, 15))
+    count = 0
+    for i in range(predictions.shape[0]):
+        plt.imshow(predictions[i], cmap=plt.get_cmap('Greys_r'))
+        plt.axis('off')
+        plt.savefig(f'../features/{name}/useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
+        plt.close()
+        count += 1
+
+    predictions = model.sample(not_useful_encodings)
+    plt.figure(figsize=(15, 15))
+    count = 0
+    for i in range(predictions.shape[0]):
+        plt.imshow(predictions[i], cmap=plt.get_cmap('Greys_r'))
+        plt.axis('off')
+        plt.savefig(f'../features/{name}/not_useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
+        plt.close()
+        count += 1

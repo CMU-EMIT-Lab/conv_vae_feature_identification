@@ -39,8 +39,12 @@ def load_data(params):
         batch_size=params.batch_size
     )
 
-    train_set = train_loader.map(lambda images, labels: format_dataset(images, labels, paths=train_loader.file_paths))
-    test_set = test_loader.map(lambda images, labels: format_dataset(images, labels, paths=test_loader.file_paths))
+    train_set = train_loader.map(
+        lambda images, labels: format_dataset(images, labels, paths=train_loader.file_paths)
+    )
+    test_set = test_loader.map(
+        lambda images, labels: format_dataset(images, labels, paths=test_loader.file_paths)
+    )
     return test_set, train_set
 
 
