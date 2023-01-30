@@ -1,5 +1,5 @@
 import tqdm
-from engine import train, validate
+from engine import *
 from utils import *
 
 
@@ -84,7 +84,9 @@ def initialize_training(params):
     e_loss_record = []
     r_loss_record = []
     k_loss_record = []
-    return pbar, e_loss_record, r_loss_record, k_loss_record
+    train_loss_record = []
+    val_loss_record = []
+    return pbar, e_loss_record, r_loss_record, k_loss_record, train_loss_record, val_loss_record
 
 
 def train_model(
@@ -97,6 +99,8 @@ def train_model(
         k_loss_record,
         r_loss_record,
         e_loss_record,
+        train_loss_record,
+        val_loss_record,
         params):
     """
     Inputs:
@@ -110,31 +114,32 @@ def train_model(
     print(f"Training Started on {params.parent_dir} Dataset")
     for epoch in pbar:
         # Train the model
-        reco_loss, elbo_loss, kl_loss = train(
+        reco_loss, elbo_loss, kl_loss, train_loss, val_loss = train(
             model, train_set, params.learning_rate
         )
 
+        train_loss = calculate_train_loss(model, train_set, train_loss)
+        train_loss_record.append(train_loss.result())
+
         # Validate the model
-        elbo_loss, reco_loss, kl_loss = validate(
-            model, test_set, reco_loss, elbo_loss, kl_loss
+        elbo_loss, reco_loss, kl_loss, val_loss = validate(
+            model, test_set, reco_loss, elbo_loss, kl_loss, val_loss
         )
 
-        # Record the loss
-        r_loss = -reco_loss.result()
-        e_loss = elbo_loss.result()
-        k_loss = kl_loss.result()
+        r_loss_record.append(-reco_loss.result())
+        e_loss_record.append(elbo_loss.result())
+        k_loss_record.append(kl_loss.result())
+        val_loss_record.append(val_loss.result())
 
-        r_loss_record.append(r_loss)
-        e_loss_record.append(e_loss)
-        k_loss_record.append(k_loss)
-
-        update_pbar(e_loss, r_loss, k_loss, pbar)
+        update_pbar(elbo_loss.result(), -reco_loss.result(), kl_loss.result(), pbar)
 
         # make an example of the reconstruction
         if epoch % 10 == 0 or epoch == 1 or epoch == params.epochs:
             save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
     # generate_latent_iteration(model, epoch, test_set, log_lists, name)
-    print('TRAINING COMPLETE')
+    save_loss_plots(e_loss_record, r_loss_record, k_loss_record, params.name)
+    save_train_val_plots(train_loss_record, val_loss_record, params.name)
+    print('Training Complete')
     return model, test_set, train_set
 
 
@@ -147,7 +152,7 @@ if __name__ == "__main__":
         image_size=128,
         latent_dim=32,
         num_examples_to_generate=16,
-        learning_rate=0.001
+        learning_rate=0.0005
         # show_latent_gif=True
     )
     from main import train_a_model

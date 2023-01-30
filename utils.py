@@ -70,15 +70,27 @@ def start_llist(latent_dim):
     return log_lists
 
 
-def save_loss_plot(train_loss, valid_loss, name):
+def save_loss_plots(e, r, k, name):
     # loss plots
     plt.figure(figsize=(10, 7))
-    plt.plot(train_loss, color='orange', label='train loss')
-    plt.plot(valid_loss, color='red', label='val loss')
+    plt.plot(e, color='orange', label='ELBO Loss')
+    plt.plot(r, color='blue', label='Reconstruction Loss')
+    plt.plot(k, color='purple', label='KL Loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig(f'../outputs/{name}/loss.jpg')
+    plt.savefig(f'../outputs/{name}/val_elbo_rec_kl_loss.jpg')
+    plt.show()
+
+def save_train_val_plots(train_loss, val_loss, name):
+    # loss plots
+    plt.figure(figsize=(10, 7))
+    plt.plot(train_loss, color='orange', label='Train ELBO Loss')
+    plt.plot(val_loss, color='blue', label='Validation ELBO Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.savefig(f'../outputs/{name}/train_val_loss.jpg')
     plt.show()
 
 
@@ -186,10 +198,11 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
         plt.close()
         count += 1
 
-    predictions = model.sample(not_useful_encodings)
+
     plt.figure(figsize=(15, 15))
     count = 0
-    for i in range(predictions.shape[0]):
+    for i in range(not_useful_encodings.shape[0]):
+        predictions = model.sample(not_useful_encodings[i])
         plt.imshow(predictions[i], cmap=plt.get_cmap('Greys_r'))
         plt.axis('off')
         plt.savefig(f'../features/{name}/not_useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
