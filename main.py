@@ -6,16 +6,16 @@ from train import TrainParams
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'data_binary_watermark'
-sub_dir = 'watermark_test'
+parent_dir = 'HighCycleLowCycleNoBorder_Regime'
+sub_dir = 'full_test_no_borders'
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=50,
+    epochs=200,
     batch_size=16,
-    image_size=64,
-    latent_dim=128,
+    image_size=128,
+    latent_dim=1024,
     num_examples_to_generate=16,
     learning_rate=0.001
     # show_latent_gif=True
