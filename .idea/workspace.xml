@@ -44,9 +44,6 @@
       <module name="rapid_feature_identification" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -151,6 +148,7 @@
       <workItem from="1674664247283" duration="13628000" />
       <workItem from="1674677914345" duration="29795000" />
       <workItem from="1675185937501" duration="32000" />
+      <workItem from="1675187218810" duration="749000" />
     </task>
     <servers />
   </component>

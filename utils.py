@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from os import path, mkdir
+from os import path, mkdir, makedirs
 import tensorflow as tf
 import pandas as pd
 mpl.pyplot.rcParams.update({'font.size': 12})
@@ -172,9 +172,9 @@ def save_tree(regressor, params):
 
 def pull_key_features(useful_encodings, not_useful_encodings, model, name):
     if not path.isdir(f'../features/{name}/useful/'):
-        mkdir(f'../features/{name}/useful/')
+        makedirs(f'../features/{name}/useful/')
     if not path.isdir(f'../features/{name}/not_useful/'):
-        mkdir(f'../features/{name}/not_useful/')
+        makedirs(f'../features/{name}/not_useful/')
 
     predictions = model.sample(useful_encodings)
     plt.figure(figsize=(15, 15))

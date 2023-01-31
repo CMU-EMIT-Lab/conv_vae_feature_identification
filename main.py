@@ -5,8 +5,8 @@ from utils import *
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'HighCycleLowCycleNoBorder_Regime'
-sub_dir = 'full_rf_test_model'
+parent_dir = 'data_binary_watermark'
+sub_dir = 'watermark_test'
 
 
 def train_a_model(train_params):
@@ -44,10 +44,10 @@ if __name__ == "__main__":
     check_params = TrainParams(
         parent_dir=parent_dir,
         name=sub_dir,
-        epochs=1000,
+        epochs=50,
         batch_size=16,
         image_size=64,
-        latent_dim=512,
+        latent_dim=128,
         num_examples_to_generate=16,
         learning_rate=0.001
         # show_latent_gif=True
