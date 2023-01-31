@@ -1,12 +1,25 @@
 from model import CVAE, Encoder, Decoder
 from randomforest import *
 from utils import *
+from train import TrainParams
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
 parent_dir = 'data_binary_watermark'
 sub_dir = 'watermark_test'
+
+check_params = TrainParams(
+    parent_dir=parent_dir,
+    name=sub_dir,
+    epochs=50,
+    batch_size=16,
+    image_size=64,
+    latent_dim=128,
+    num_examples_to_generate=16,
+    learning_rate=0.001
+    # show_latent_gif=True
+)
 
 
 def train_a_model(train_params):
@@ -40,19 +53,6 @@ def train_a_model(train_params):
 
 
 if __name__ == "__main__":
-    from train import load_data, TrainParams
-    check_params = TrainParams(
-        parent_dir=parent_dir,
-        name=sub_dir,
-        epochs=50,
-        batch_size=16,
-        image_size=64,
-        latent_dim=128,
-        num_examples_to_generate=16,
-        learning_rate=0.001
-        # show_latent_gif=True
-    )
-
     cvae, test_ds, train_ds = train_a_model(check_params)
 
     # Get arrays of encoded data from model
