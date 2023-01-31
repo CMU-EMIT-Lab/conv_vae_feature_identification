@@ -14,10 +14,10 @@ check_params = TrainParams(
     name=sub_dir,
     epochs=200,
     batch_size=16,
-    image_size=128,
-    latent_dim=1024,
+    image_size=64,
+    latent_dim=256,
     num_examples_to_generate=16,
-    learning_rate=0.001
+    learning_rate=0.0001
     # show_latent_gif=True
 )
 
