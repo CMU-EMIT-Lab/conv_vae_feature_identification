@@ -17,7 +17,7 @@ class TrainParams:
                  num_examples_to_generate=16,
                  learning_rate=0.0001,
                  section_divisibility=10,
-                 test_train_split=0.1,
+                 test_train_split=4,
                  bright_sample=True
                  ):
         self.epochs = epochs

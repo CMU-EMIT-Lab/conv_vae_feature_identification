@@ -36,7 +36,7 @@ def get_encoding(model, ds):
 
 
 def random_forest(x_train, y_train, x_test, y_test, params):
-    from utils import save_forest
+    from bin.utils import save_forest
     # x == encodings, y == labels, f == filenames
     # We want a low depth because we're trying to identify the key features - low overall RF accuracy is unimportant
     regressor = sk_e.RandomForestRegressor(n_estimators=1000, max_depth=2)

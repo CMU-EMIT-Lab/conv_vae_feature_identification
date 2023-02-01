@@ -17,17 +17,17 @@ print('Tensorflow: %s' % tf.__version__)  # print version
 
 parent_dir = 'test_dataset'
 sub_dir = 'test_model'
-new_micrographs = True
+new_micrographs = False
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=50,
+    epochs=500,
     batch_size=16,
     image_size=64,
-    latent_dim=128,
+    latent_dim=1024,
     num_examples_to_generate=16,
-    learning_rate=0.001,
+    learning_rate=0.0001,
     section_divisibility=10
 )
 

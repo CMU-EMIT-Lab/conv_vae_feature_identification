@@ -93,16 +93,16 @@ def slice_images(for_inputs, for_mapping, from_bin, inputs, subdir, params):
             count += 1
             section = inputs[i][cutter_h*(h-1):cutter_h*h, cutter_w*(w-1):cutter_w*w]
             if for_inputs:
-                if count % int(1/params.test_train_split):
+                if count % params.test_train_split:
                     if from_bin:
                         cv2.imwrite(
                             f'../../input/{params.parent_dir}/val/{subdir}/img_{i}_section_w{w}_h{h}.png',
-                            section
+                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
                         )
                     else:
                         cv2.imwrite(
                             f'../input/{params.parent_dir}/val/{subdir}/img_{i}_section_w{w}_h{h}.png',
-                            section
+                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
                         )
                 else:
                     if from_bin:
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     check_params = TrainParams(
         parent_dir=parent_dir,
         name=sub_dir,
-        section_divisibility=10,
+        section_divisibility=4,
         # If your sample is brighter than the background, make true - this influences crop_micrographs
         bright_sample=True
     )
