@@ -115,8 +115,8 @@ def slice_images(for_inputs, for_mapping, from_bin, inputs, subdir, params):
                             f'../input/{params.parent_dir}/train/{subdir}/img_{i}_section_w{w}_h{h}.png',
                             cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
                         )
-            # elif for_mapping:
-            #     bre
+            elif for_mapping:
+                print("Mapping Not Implemented")
         loader_pbar(i, subdir, pbar)
 
 
