@@ -8,16 +8,34 @@ Date: January 27, 2023
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from os import path, mkdir, makedirs, curdir
+from os import path, mkdir, makedirs
 import tensorflow as tf
 import pandas as pd
 mpl.pyplot.rcParams.update({'font.size': 12})
 mpl.pyplot.rcParams.update({'font.family': 'sans'})
 
 
-def check_dir(name):
-    if not path.isdir(f'../outputs/{name}'):
-        mkdir(f'../outputs/{name}')
+def check_dir(in_out, from_bin, name):
+    if from_bin:
+        if not path.isdir(f'../../{in_out}/{name}'):
+            mkdir(f'../../{in_out}/{name}')
+            if in_out == 'input':
+                mkdir(f'../../{in_out}/{name}/val')
+                mkdir(f'../../{in_out}/{name}/train')
+                mkdir(f'../../{in_out}/{name}/val/0')
+                mkdir(f'../../{in_out}/{name}/val/1')
+                mkdir(f'../../{in_out}/{name}/train/0')
+                mkdir(f'../../{in_out}/{name}/train/1')
+    else:
+        if not path.isdir(f'../{in_out}/{name}'):
+            mkdir(f'../{in_out}/{name}')
+            if in_out == 'input':
+                mkdir(f'../{in_out}/{name}/val')
+                mkdir(f'../{in_out}/{name}/train')
+                mkdir(f'../{in_out}/{name}/val/0')
+                mkdir(f'../{in_out}/{name}/val/1')
+                mkdir(f'../{in_out}/{name}/train/0')
+                mkdir(f'../{in_out}/{name}/train/1')
 
 
 def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, name):
@@ -30,7 +48,7 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
     for i in range(predictions.shape[0]):
         plt.subplot(4, 4, i + 1)
         plt.imshow(predictions[i, :, :, 0], cmap=plt.get_cmap('Greys_r'))
-        plt.title(int(test_label[i] + 1), size=32)
+        plt.title(int(test_label[i]), size=32)
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
@@ -63,7 +81,7 @@ def input_images(image, name, label):
     for i in range(16):
         plt.subplot(4, 4, i + 1)
         plt.imshow(image[i].numpy() / 255, cmap=plt.get_cmap('Greys_r'))
-        plt.title(int(label[i] + 1), size=32)
+        plt.title(int(label[i]), size=32)
         plt.axis("off")
     plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
@@ -108,9 +126,15 @@ def format_dataset(images, labels, paths):
 
 
 def update_pbar(e_loss, r_loss, k_loss, pbar):
-    pbar.set_postfix_str(
-        f"ELBO Loss: {e_loss} - Reconstruction Loss: {r_loss} - KL Loss: {k_loss}")
-    return pbar
+    return pbar.set_postfix_str(f"ELBO Loss: {e_loss} - Reconstruction Loss: {r_loss} - KL Loss: {k_loss}")
+
+
+def loader_pbar(file, criteria, pbar):
+    if criteria == 0:
+        value = 'positive'
+    else:
+        value = 'negative'
+    return pbar.set_postfix_str(f'Slicing file: {file} in {value} images')
 
 
 def save_forest(forest, importance, mse, name):

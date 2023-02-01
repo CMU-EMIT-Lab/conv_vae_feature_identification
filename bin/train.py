@@ -127,7 +127,7 @@ def train_model(
 
 
 def train_a_model(train_params):
-    check_dir(train_params.name)
+    check_dir('outputs', False, train_params.name)
 
     model = CVAE(
         latent_dim=train_params.latent_dim,

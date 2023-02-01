@@ -22,7 +22,7 @@ Additionally, you will specify the test/train split at this step in the TrainPar
 import cv2
 import tqdm
 import os.path
-import matplotlib.pyplot as plt
+from bin.utils import loader_pbar, check_dir
 
 
 def load_micrographs(params, classification):
@@ -49,6 +49,7 @@ def crop_micrographs(inputs, params):
     # By default, this will remove the lower 10% of the image as well
     outputs = []
     for img in inputs:
+        # If the sample is bright, we will use a normal binary threshold to crop to the sample
         if params.bright_sample:
             _, threshold = cv2.threshold(
                 cv2.cvtColor(img, cv2.COLOR_RGB2GRAY),
@@ -56,6 +57,7 @@ def crop_micrographs(inputs, params):
                 maxval=255,
                 type=cv2.THRESH_BINARY
             )
+        # if the sample is not bright, then we'll crop to the largest bounding box (may need to tweak area[**][1] later)
         else:
             _, threshold = cv2.threshold(
                 cv2.cvtColor(img, cv2.COLOR_RGB2GRAY),
@@ -68,7 +70,6 @@ def crop_micrographs(inputs, params):
             cv2.RETR_LIST,
             cv2.CHAIN_APPROX_SIMPLE
         )
-        max_area = 0
         areas = []
         for cont in contours:
             x, y, w, h = cv2.boundingRect(cont)
@@ -79,22 +80,68 @@ def crop_micrographs(inputs, params):
     return outputs
 
 
+def slice_images(for_inputs, for_mapping, from_bin, inputs, subdir, params):
+    pbar = tqdm.tqdm(range(len(inputs)))
+    for i in pbar:
+        count = 0
+        h, w, channels = inputs[i].shape
+        cutter_w = w//params.section_divisibility
+        cutter_h = h//params.section_divisibility
+        sectors = range(1, params.section_divisibility+1)
+        slap_chopper = [(w, h) for w in sectors for h in sectors]
+        for w, h in slap_chopper:
+            count += 1
+            section = inputs[i][cutter_h*(h-1):cutter_h*h, cutter_w*(w-1):cutter_w*w]
+            if for_inputs:
+                if count % int(1/params.test_train_split):
+                    if from_bin:
+                        cv2.imwrite(
+                            f'../../input/{params.parent_dir}/val/{subdir}/img_{i}_section_w{w}_h{h}.png',
+                            section
+                        )
+                    else:
+                        cv2.imwrite(
+                            f'../input/{params.parent_dir}/val/{subdir}/img_{i}_section_w{w}_h{h}.png',
+                            section
+                        )
+                else:
+                    if from_bin:
+                        cv2.imwrite(
+                            f'../../input/{params.parent_dir}/train/{subdir}/img_{i}_section_w{w}_h{h}.png',
+                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
+                        )
+                    else:
+                        cv2.imwrite(
+                            f'../input/{params.parent_dir}/train/{subdir}/img_{i}_section_w{w}_h{h}.png',
+                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
+                        )
+            # elif for_mapping:
+            #     bre
+        loader_pbar(i, subdir, pbar)
+
+
+def format_images(from_bin, params):
+    import matplotlib.pyplot as plt
+    check_dir('input', from_bin, params.parent_dir)
+    for criteria in [0, 1]:
+        # Stacked the data loader and the cropping function into one line
+        images = crop_micrographs(load_micrographs(params, criteria), params)
+        slice_images(True, False, from_bin, images, criteria, params)
+    plt.imshow(images[0])
+    plt.show()
+
+
 if __name__ == "__main__":
-    parent_dir = 'HighCycleLowCycle_Regime'
-    sub_dir = 'full_test_no_borders'
+    parent_dir = 'test_dataset'
+    sub_dir = 'test_model'
 
     from bin.settings import TrainParams
     check_params = TrainParams(
         parent_dir=parent_dir,
         name=sub_dir,
+        section_divisibility=10,
         # If your sample is brighter than the background, make true - this influences crop_micrographs
         bright_sample=True
     )
 
-    for criteria in [0, 1]:
-        # Stacked the data loader and the cropping function into one line
-        images = crop_micrographs(load_micrographs(check_params, criteria), check_params)
-
-    plt.imshow(images[0])
-    plt.show()
-
+    format_images(True, check_params)
