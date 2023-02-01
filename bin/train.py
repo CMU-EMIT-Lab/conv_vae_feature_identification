@@ -1,28 +1,15 @@
+"""
+INFO
+File: main.py
+Created by: William Frieden Templeton
+Date: January 27, 2023
+"""
+
 import tqdm
-from engine import train, validate
-from utils import *
-from model import *
-
-
-class TrainParams:
-    def __init__(self,
-                 epochs,
-                 parent_dir,
-                 name,
-                 image_size,
-                 batch_size,
-                 latent_dim,
-                 num_examples_to_generate,
-                 learning_rate
-                 ):
-        self.epochs = epochs
-        self.parent_dir = parent_dir
-        self.name = name
-        self.image_size = image_size
-        self.batch_size = batch_size
-        self.latent_dim = latent_dim
-        self.num_examples_to_generate = num_examples_to_generate
-        self.learning_rate = learning_rate
+from bin.engine import train, validate
+from bin.utils import *
+from bin.model import *
+from bin.settings import TrainParams
 
 
 def load_data(params):
@@ -140,7 +127,7 @@ def train_model(
 
 
 def train_a_model(train_params):
-    check_dir(train_params.name)
+    check_dir('outputs', False, train_params.name)
 
     model = CVAE(
         latent_dim=train_params.latent_dim,
@@ -176,8 +163,6 @@ if __name__ == "__main__":
         batch_size=16,
         image_size=128,
         latent_dim=32,
-        num_examples_to_generate=16,
-        learning_rate=0.001
-        # show_latent_gif=True
+        learning_rate=0.001,
     )
     train_a_model(train_params=check_params)

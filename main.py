@@ -1,24 +1,40 @@
+"""
+INFO
+File: main.py
+Created by: William Frieden Templeton
+Date: January 27, 2023
+"""
+
 from bin.randomforest import *
 from bin.utils import *
-from bin.train import TrainParams, train_a_model
+from bin.train import train_a_model
+from bin.settings import TrainParams
+from bin.image_formatter import format_images
+from time import sleep
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'HighCycleLowCycleNoBorder_Regime'
-sub_dir = 'full_test_no_borders'
+parent_dir = 'test_dataset'
+sub_dir = 'test_model'
+new_micrographs = False
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=200,
+    epochs=500,
     batch_size=16,
     image_size=64,
-    latent_dim=256,
+    latent_dim=1024,
     num_examples_to_generate=16,
-    learning_rate=0.0001
-    # show_latent_gif=True
+    learning_rate=0.0001,
+    section_divisibility=10
 )
+
+if new_micrographs:
+    format_images(False, check_params)  # False means we're running from main
+    # Give the disk a second to notice the files
+    sleep(2)
 
 cvae, test_ds, train_ds = train_a_model(check_params)
 

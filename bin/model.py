@@ -1,3 +1,10 @@
+"""
+INFO
+File: main.py
+Created by: William Frieden Templeton
+Date: January 27, 2023
+"""
+
 import tensorflow as tf
 import numpy as np
 

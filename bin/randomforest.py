@@ -1,6 +1,13 @@
+"""
+INFO
+File: main.py
+Created by: William Frieden Templeton
+Date: January 30, 2023
+"""
+
 import sklearn.ensemble as sk_e
 import sklearn.metrics as sk_m
-from utils import *
+from bin.utils import *
 
 
 def get_encoding(model, ds):
@@ -29,10 +36,10 @@ def get_encoding(model, ds):
 
 
 def random_forest(x_train, y_train, x_test, y_test, params):
-    from utils import save_forest
+    from bin.utils import save_forest
     # x == encodings, y == labels, f == filenames
     # We want a low depth because we're trying to identify the key features - low overall RF accuracy is unimportant
-    regressor = sk_e.RandomForestRegressor(n_estimators=1000, max_depth=2)
+    regressor = sk_e.RandomForestRegressor(n_estimators=1000, max_depth=4)
     regressor.fit(x_train, y_train)
     prediction = regressor.predict(x_test)
     mse = sk_m.mean_squared_error(y_test, prediction)
