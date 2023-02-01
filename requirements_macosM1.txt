@@ -91,6 +91,7 @@ tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.8.1
 tensorflow-estimator==2.10.0
 tensorflow-macos==2.10.0
+tensorflow-metal==0.6.0
 termcolor==2.2.0
 threadpoolctl @ file:///home/conda/feedstock_root/build_artifacts/threadpoolctl_1643647933166/work
 tifffile @ file:///home/conda/feedstock_root/build_artifacts/tifffile_1674498532372/work
