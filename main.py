@@ -12,10 +12,10 @@ sub_dir = 'full_test_no_borders'
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=200,
+    epochs=250,
     batch_size=16,
-    image_size=64,
-    latent_dim=256,
+    image_size=128,
+    latent_dim=1024,
     num_examples_to_generate=16,
     learning_rate=0.0001
     # show_latent_gif=True
@@ -36,7 +36,9 @@ def train_a_model(train_params):
     log_lists, test_sample, test_label = sample_inputs(
         model, Encoder, Decoder, test_set, train_params
     )
-    pbar, e_loss_record, r_loss_record, k_loss_record = initialize_training(train_params)
+    pbar, e_loss_record, r_loss_record, k_loss_record, train_loss_record, val_loss_record = initialize_training(
+        train_params
+    )
     model, test_sample, test_label = train_model(
         model=model,
         test_set=test_set,
@@ -47,6 +49,8 @@ def train_a_model(train_params):
         k_loss_record=k_loss_record,
         r_loss_record=r_loss_record,
         e_loss_record=e_loss_record,
+        train_loss_record=train_loss_record,
+        val_loss_record=val_loss_record,
         params=train_params
     )
     return model, test_set, train_set
