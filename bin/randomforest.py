@@ -1,3 +1,10 @@
+"""
+INFO
+File: main.py
+Created by: William Frieden Templeton
+Date: January 30, 2023
+"""
+
 import sklearn.ensemble as sk_e
 import sklearn.metrics as sk_m
 from utils import *

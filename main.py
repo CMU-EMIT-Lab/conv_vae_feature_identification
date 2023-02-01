@@ -1,6 +1,15 @@
+"""
+INFO
+File: main.py
+Created by: William Frieden Templeton
+Date: January 27, 2023
+"""
+
+
 from bin.randomforest import *
 from bin.utils import *
-from bin.train import TrainParams, train_a_model
+from bin.train import train_a_model
+from bin.settings import TrainParams
 
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
@@ -16,8 +25,8 @@ check_params = TrainParams(
     image_size=64,
     latent_dim=256,
     num_examples_to_generate=16,
-    learning_rate=0.0001
-    # show_latent_gif=True
+    learning_rate=0.0001,
+    section_divisibility=10
 )
 
 cvae, test_ds, train_ds = train_a_model(check_params)
