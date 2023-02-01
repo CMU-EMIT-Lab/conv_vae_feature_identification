@@ -1,6 +1,7 @@
 import tqdm
 from engine import train, validate
 from utils import *
+from model import *
 
 
 class TrainParams:
@@ -138,6 +139,35 @@ def train_model(
     return model, test_set, train_set
 
 
+def train_a_model(train_params):
+    check_dir(train_params.name)
+
+    model = CVAE(
+        latent_dim=train_params.latent_dim,
+        batch_size=train_params.batch_size,
+        image_size=train_params.image_size
+    )
+
+    test_set, train_set = load_data(train_params)
+    log_lists, test_sample, test_label = sample_inputs(
+        model, Encoder, Decoder, test_set, train_params
+    )
+    pbar, e_loss_record, r_loss_record, k_loss_record = initialize_training(train_params)
+    model, test_sample, test_label = train_model(
+        model=model,
+        test_set=test_set,
+        train_set=train_set,
+        test_sample=test_sample,
+        test_label=test_label,
+        pbar=pbar,
+        k_loss_record=k_loss_record,
+        r_loss_record=r_loss_record,
+        e_loss_record=e_loss_record,
+        params=train_params
+    )
+    return model, test_set, train_set
+
+
 if __name__ == "__main__":
     check_params = TrainParams(
         parent_dir='HighCycleLowCycle_Regime',
@@ -150,5 +180,4 @@ if __name__ == "__main__":
         learning_rate=0.001
         # show_latent_gif=True
     )
-    from main import train_a_model
     train_a_model(train_params=check_params)
