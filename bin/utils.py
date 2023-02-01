@@ -17,7 +17,7 @@ mpl.pyplot.rcParams.update({'font.family': 'sans'})
 
 def check_dir(name):
     if not path.isdir(f'../outputs/{name}'):
-        mkdir(f'{path.abspath(curdir)}/outputs/{name}')
+        mkdir(f'../outputs/{name}')
 
 
 def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, name):
@@ -34,16 +34,16 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
-    plt.savefig(f'{path.abspath(curdir)}/outputs/{name}/output{epoch}.jpg')
+    plt.savefig(f'../outputs/{name}/output{epoch}.jpg')
     plt.show()
 
     if epoch == max_epoch:
         df = pd.DataFrame(listed_z)
-        df.to_csv(f'{path.abspath(curdir)}/outputs/{name}/z_pred_sample.csv')
+        df.to_csv(f'../outputs/{name}/z_pred_sample.csv')
 
 
 def printer(model, branch, name):
-    with open(f'{path.abspath(curdir)}/outputs/{name}/{branch}_summary.txt', 'a') as f:
+    with open(f'../outputs/{name}/{branch}_summary.txt', 'a') as f:
         model.summary(print_fn=lambda x: f.write(x + '\n'))
 
 
@@ -65,7 +65,7 @@ def input_images(image, name, label):
         plt.imshow(image[i].numpy() / 255, cmap=plt.get_cmap('Greys_r'))
         plt.title(int(label[i] + 1), size=32)
         plt.axis("off")
-    plt.savefig(f'{path.abspath(curdir)}/outputs/{name}/input_example.png', dpi=100)
+    plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
 
 
@@ -85,13 +85,13 @@ def save_loss_plot(train_loss, valid_loss, name):
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig(f'{path.abspath(curdir)}/outputs/{name}/loss.jpg')
+    plt.savefig(f'../outputs/{name}/loss.jpg')
     plt.show()
 
 
 def get_dataset(parent_dir, sub_dir, image_size, batch_size):
     datagen = tf.keras.preprocessing.image_dataset_from_directory(
-        directory=f'{path.abspath(curdir)}/input/{parent_dir}/{sub_dir}/',
+        directory=f'../input/{parent_dir}/{sub_dir}/',
         color_mode='grayscale',
         labels='inferred',
         image_size=(image_size, image_size),
@@ -114,7 +114,7 @@ def update_pbar(e_loss, r_loss, k_loss, pbar):
 
 
 def save_forest(forest, importance, mse, name):
-    forest.to_csv(f'{path.abspath(curdir)}/outputs/{name}/ranked_latent_dims.csv')
+    forest.to_csv(f'../outputs/{name}/ranked_latent_dims.csv')
 
     # Visualize the important encodings
     fig, ax = plt.subplots()
@@ -129,7 +129,7 @@ def save_forest(forest, importance, mse, name):
     ax.tick_params(axis='x', colors='black', labelsize=14)
     ax.tick_params(axis='y', colors='black', labelsize=14)
     fig.tight_layout()
-    plt.savefig(f'{path.abspath(curdir)}/outputs/{name}/ranked_latent_dims.jpg', transparent=True, dpi=100)
+    plt.savefig(f'../outputs/{name}/ranked_latent_dims.jpg', transparent=True, dpi=100)
     plt.show()
 
 
@@ -164,7 +164,7 @@ def show_split(parted_encodings, forest_importance, regressor, params):
         plt.xlabel(f'Latent Dimension {top_dims[i]} Values')
         plt.ylabel('Number of Images Encoded to Dimension')
         plt.legend(loc='upper left', frameon=False)
-        plt.savefig(f'{path.abspath(curdir)}/outputs/{params.name}/no{i}_valuable_dimension_{top_dims[i]}.jpg',
+        plt.savefig(f'../outputs/{params.name}/no{i}_valuable_dimension_{top_dims[i]}.jpg',
                     transparent=True, dpi=100)
         plt.show()
 
@@ -173,17 +173,17 @@ def save_tree(regressor, params):
     import sklearn.tree as sk_t
     import pydot  # Pull out one tree from the forest
     tree = regressor.estimators_[3]  # Export the image to a dot file
-    sk_t.export_graphviz(tree, out_file=f'{path.abspath(curdir)}/outputs/{params.name}/tree.dot')
-    (graph,) = pydot.graph_from_dot_file(f'{path.abspath(curdir)}/outputs/{params.name}/tree.dot')
+    sk_t.export_graphviz(tree, out_file=f'../outputs/{params.name}/tree.dot')
+    (graph,) = pydot.graph_from_dot_file(f'../outputs/{params.name}/tree.dot')
     # Write graph to a png file
-    graph.write_png(f'{path.abspath(curdir)}/outputs/{params.name}/tree.png')
+    graph.write_png(f'../outputs/{params.name}/tree.png')
 
 
 def pull_key_features(useful_encodings, not_useful_encodings, model, name):
-    if not path.isdir(f'{path.abspath(curdir)}/features/{name}/useful/'):
-        makedirs(f'{path.abspath(curdir)}/features/{name}/useful/')
-    if not path.isdir(f'{path.abspath(curdir)}/features/{name}/not_useful/'):
-        makedirs(f'{path.abspath(curdir)}/features/{name}/not_useful/')
+    if not path.isdir(f'../features/{name}/useful/'):
+        makedirs(f'../features/{name}/useful/')
+    if not path.isdir(f'../features/{name}/not_useful/'):
+        makedirs(f'../features/{name}/not_useful/')
 
     predictions = model.sample(useful_encodings)
     plt.figure(figsize=(15, 15))
@@ -191,7 +191,7 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
     for i in range(predictions.shape[0]):
         plt.imshow(predictions[i], cmap=plt.get_cmap('Greys_r'))
         plt.axis('off')
-        plt.savefig(f'{path.abspath(curdir)}/features/{name}/useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
+        plt.savefig(f'../features/{name}/useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
         plt.close()
         count += 1
 
@@ -201,6 +201,6 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
     for i in range(predictions.shape[0]):
         plt.imshow(predictions[i], cmap=plt.get_cmap('Greys_r'))
         plt.axis('off')
-        plt.savefig(f'{path.abspath(curdir)}/features/{name}/not_useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
+        plt.savefig(f'../features/{name}/not_useful/output_{count}.jpg', dpi=50, bbox_inches='tight')
         plt.close()
         count += 1

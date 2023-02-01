@@ -6,10 +6,10 @@ Date: January 27, 2023
 """
 
 import tqdm
-from engine import train, validate
-from utils import *
-from model import *
-from settings import TrainParams
+from bin.engine import train, validate
+from bin.utils import *
+from bin.model import *
+from bin.settings import TrainParams
 
 
 def load_data(params):

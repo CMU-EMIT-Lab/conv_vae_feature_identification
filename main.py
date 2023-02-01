@@ -5,7 +5,6 @@ Created by: William Frieden Templeton
 Date: January 27, 2023
 """
 
-
 from bin.randomforest import *
 from bin.utils import *
 from bin.train import train_a_model

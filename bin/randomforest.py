@@ -7,7 +7,7 @@ Date: January 30, 2023
 
 import sklearn.ensemble as sk_e
 import sklearn.metrics as sk_m
-from utils import *
+from bin.utils import *
 
 
 def get_encoding(model, ds):

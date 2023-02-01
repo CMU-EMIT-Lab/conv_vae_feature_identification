@@ -17,7 +17,8 @@ class TrainParams:
                  num_examples_to_generate=16,
                  learning_rate=0.0001,
                  section_divisibility=10,
-                 test_train_split=0.1
+                 test_train_split=0.1,
+                 bright_sample=True
                  ):
         self.epochs = epochs
         self.parent_dir = parent_dir
@@ -29,3 +30,4 @@ class TrainParams:
         self.learning_rate = learning_rate
         self.section_divisibility = section_divisibility
         self.test_train_split = test_train_split
+        self.bright_sample = bright_sample
