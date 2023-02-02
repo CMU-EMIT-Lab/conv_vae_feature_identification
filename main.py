@@ -33,7 +33,7 @@ check_params = TrainParams(
 )
 
 if new_micrographs:
-    format_images(False, check_params)  # False means we're running from main
+    format_images(from_bin=False, params=check_params)  # False means we're running from main
     # Give the disk a second to notice the files
     sleep(1)
 
@@ -64,3 +64,4 @@ positive_features, negative_features = identify_files(
     test_labels,
     forest_model)
 pull_key_features(positive_features, negative_features, cvae, check_params.name)
+format_images(cvae_model=cvae, forest_model, image_gen=False, map_gen=True, from_bin=False, params=check_params)
