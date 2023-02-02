@@ -80,44 +80,47 @@ def crop_micrographs(inputs, params):
     return outputs
 
 
-def slice_images(for_inputs, for_mapping, from_bin, inputs, subdir, params):
+def slice_utility(img, params):
+    count = 0
+    h, w, channels = img.shape
+    cutter_w = w//params.section_divisibility
+    cutter_h = h//params.section_divisibility
+    sectors = range(1, params.section_divisibility+1)
+    slap_chop = [(w, h) for w in sectors for h in sectors]
+    sections = [img[cutter_h * (h - 1):cutter_h * h, cutter_w * (w - 1):cutter_w * w] for w, h in slap_chop]
+    axes = [[w, h] for w, h in slap_chop]
+    return sections, axes
+
+
+def slice_images(from_bin, inputs, crit, params):
     pbar = tqdm.tqdm(range(len(inputs)))
     for i in pbar:
+        sections, axes = slice_utility(inputs[i], params)
         count = 0
-        h, w, channels = inputs[i].shape
-        cutter_w = w//params.section_divisibility
-        cutter_h = h//params.section_divisibility
-        sectors = range(1, params.section_divisibility+1)
-        slap_chopper = [(w, h) for w in sectors for h in sectors]
-        for w, h in slap_chopper:
-            count += 1
-            section = inputs[i][cutter_h*(h-1):cutter_h*h, cutter_w*(w-1):cutter_w*w]
-            if for_inputs:
-                if count % params.test_train_split:
-                    if from_bin:
-                        cv2.imwrite(
-                            f'../../input/{params.parent_dir}/val/{subdir}/img_{i}_section_w{w}_h{h}.png',
-                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
-                        )
-                    else:
-                        cv2.imwrite(
-                            f'../input/{params.parent_dir}/val/{subdir}/img_{i}_section_w{w}_h{h}.png',
-                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
-                        )
+        for section, axis in zip(sections, axes):
+            if count % params.test_train_split:
+                if from_bin:
+                    cv2.imwrite(
+                        f'../../input/{params.parent_dir}/val/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
+                        cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
+                    )
                 else:
-                    if from_bin:
-                        cv2.imwrite(
-                            f'../../input/{params.parent_dir}/train/{subdir}/img_{i}_section_w{w}_h{h}.png',
-                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
-                        )
-                    else:
-                        cv2.imwrite(
-                            f'../input/{params.parent_dir}/train/{subdir}/img_{i}_section_w{w}_h{h}.png',
-                            cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
-                        )
-            elif for_mapping:
-                print("Mapping Not Implemented")
-        loader_pbar(i, subdir, pbar)
+                    cv2.imwrite(
+                        f'../input/{params.parent_dir}/val/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
+                        cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
+                    )
+            else:
+                if from_bin:
+                    cv2.imwrite(
+                        f'../../input/{params.parent_dir}/train/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
+                        cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
+                    )
+                else:
+                    cv2.imwrite(
+                        f'../input/{params.parent_dir}/train/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
+                        cv2.cvtColor(section, cv2.COLOR_RGB2BGR)
+                    )
+        loader_pbar(i, crit, pbar)
 
 
 def format_images(from_bin, params):
@@ -126,7 +129,7 @@ def format_images(from_bin, params):
     for criteria in [0, 1]:
         # Stacked the data loader and the cropping function into one line
         images = crop_micrographs(load_micrographs(params, criteria), params)
-        slice_images(True, False, from_bin, images, criteria, params)
+        slice_images(from_bin, images, criteria, params)
     plt.imshow(images[0])
     plt.show()
 

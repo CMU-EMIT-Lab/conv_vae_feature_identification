@@ -11,36 +11,39 @@ from bin.train import train_a_model
 from bin.settings import TrainParams
 from bin.image_formatter import format_images
 from time import sleep
-
+import datetime
+print(f"Start Execution: {datetime.datetime.now()}")
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'test_dataset'
-sub_dir = 'test_model'
+parent_dir = 'HighCycleLowCycleNoBorder_Regime'
+sub_dir = 'HighCycleLowCycleNoBorder_Regime_OUTPUT'
 new_micrographs = False
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=500,
-    batch_size=16,
-    image_size=64,
-    latent_dim=1024,
+    epochs=1000,
+    batch_size=128,
+    image_size=128,
+    latent_dim=2048,
     num_examples_to_generate=16,
-    learning_rate=0.0001,
+    learning_rate=0.0005,
     section_divisibility=10
 )
 
 if new_micrographs:
-    format_images(False, check_params)  # False means we're running from main
+    format_images(from_bin=False, params=check_params)  # False means we're running from main
     # Give the disk a second to notice the files
-    sleep(2)
+    sleep(1)
 
 cvae, test_ds, train_ds = train_a_model(check_params)
+print(f"End of CVAE Training: {datetime.datetime.now()}")
 
 # Get arrays of encoded data from model
 train_encodings, train_labels, train_files, split_train_encodings, _ = get_encoding(cvae, train_ds)
 test_encodings, test_labels, test_files, _, _ = get_encoding(cvae, test_ds)
+print(f"End of Random Forest Regression: {datetime.datetime.now()}")
 
 # Run arrays through random forest regression to figure out if any can separate the labels
 valuable_encodings, forest_model = random_forest(
@@ -61,3 +64,4 @@ positive_features, negative_features = identify_files(
     test_labels,
     forest_model)
 pull_key_features(positive_features, negative_features, cvae, check_params.name)
+format_images(cvae_model=cvae, forest_model, image_gen=False, map_gen=True, from_bin=False, params=check_params)
