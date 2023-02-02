@@ -8,9 +8,8 @@ Date: January 27, 2023
 from bin.randomforest import *
 from bin.utils import *
 from bin.train import train_a_model
-from bin.settings import TrainParams
-from bin.image_formatter import format_images
-from bin.image_mapper import map_sections
+from bin.image_formatter import *
+from bin.image_mapper import *
 from time import sleep
 import datetime
 
@@ -25,7 +24,7 @@ new_micrographs = True
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=500,
+    epochs=150,
     batch_size=128,
     image_size=128,
     latent_dim=256,
@@ -60,7 +59,7 @@ valuable_encodings, forest_model = random_forest(
 show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
 save_tree(forest_model, check_params)
 
-# Decode useful encodings and save to folder so you can do whatever you want with them
+# Decode useful encodings and save to folder, so you can do whatever you want with them
 # positive_features, negative_features = identify_files(
 #     0,
 #     train_encodings,

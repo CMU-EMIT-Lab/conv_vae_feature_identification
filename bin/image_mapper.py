@@ -1,8 +1,9 @@
-from bin.image_formatter import slice_utility, load_micrographs, crop_micrographs
+from bin.image_formatter import slice_utility, load_micrographs
 from bin.utils import loader_pbar, check_dir
 import tqdm
 import numpy as np
 import cv2
+import tensorflow as tf
 
 
 def map_sections(from_bin, crit, cvae_model, rf_model, params):
@@ -13,6 +14,10 @@ def map_sections(from_bin, crit, cvae_model, rf_model, params):
         sections, axes, cutter_w, cutter_h = slice_utility(inputs[i], params)
         for section, axis in zip(sections, axes):
             # Get the odds of it being useful
+            section = tf.keras.preprocessing.image.array_to_img(section)
+            section = tf.image.resize(section, (128, 128))
+            print(section.shape)
+
             mean, log_var = cvae_model.encode(section)
             encoding = cvae_model.re_parameterize(mean, log_var)
             prediction = rf_model.predict(encoding)  # We could convert to binary, or could leave as a % chance
