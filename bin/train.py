@@ -119,7 +119,7 @@ def train_model(
         update_pbar(e_loss, r_loss, k_loss, pbar)
 
         # make an example of the reconstruction
-        if epoch % 10 == 0 or epoch == 1 or epoch == params.epochs:
+        if epoch % 25 == 0 or epoch == 1 or epoch == params.epochs:
             save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
     # generate_latent_iteration(model, epoch, test_set, log_lists, name)
     print('TRAINING COMPLETE')
