@@ -10,26 +10,28 @@ from bin.utils import *
 from bin.train import train_a_model
 from bin.settings import TrainParams
 from bin.image_formatter import format_images
+from bin.image_mapper import map_sections
 from time import sleep
 import datetime
+
 print(f"Start Execution: {datetime.datetime.now()}")
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'HighCycleLowCycleNoBorder_Regime'
-sub_dir = 'HighCycleLowCycleNoBorder_Regime_OUTPUT'
-new_micrographs = False
+parent_dir = 'test_dataset'
+sub_dir = 'test_model'
+new_micrographs = True
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=1000,
+    epochs=500,
     batch_size=128,
     image_size=128,
-    latent_dim=2048,
+    latent_dim=256,
     num_examples_to_generate=16,
-    learning_rate=0.0005,
-    section_divisibility=10
+    learning_rate=0.001,
+    section_divisibility=15
 )
 
 if new_micrographs:
@@ -37,6 +39,7 @@ if new_micrographs:
     # Give the disk a second to notice the files
     sleep(1)
 
+# Train a new model
 cvae, test_ds, train_ds = train_a_model(check_params)
 print(f"End of CVAE Training: {datetime.datetime.now()}")
 
@@ -53,15 +56,20 @@ valuable_encodings, forest_model = random_forest(
     test_labels,
     check_params
 )
+# Save the useful encodings and show the tree (saved to "outputs" folder)
 show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
 save_tree(forest_model, check_params)
 
-positive_features, negative_features = identify_files(
-    0,
-    train_encodings,
-    train_labels,
-    test_encodings,
-    test_labels,
-    forest_model)
-pull_key_features(positive_features, negative_features, cvae, check_params.name)
-format_images(cvae_model=cvae, forest_model, image_gen=False, map_gen=True, from_bin=False, params=check_params)
+# Decode useful encodings and save to folder so you can do whatever you want with them
+# positive_features, negative_features = identify_files(
+#     0,
+#     train_encodings,
+#     train_labels,
+#     test_encodings,
+#     test_labels,
+#     forest_model)
+# pull_key_features(positive_features, negative_features, cvae, check_params.name)
+
+# Similar to the image formatter, run sections through the CVAE, then run those sections through the random forest
+# Map back to the original image and save to show where we should be looking on the samples
+map_sections(from_bin=False, crit=0, cvae_model=cvae, rf_model=forest_model, params=check_params)
