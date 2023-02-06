@@ -55,7 +55,7 @@ class Decoder(tf.keras.layers.Layer):
                                             activation=tf.keras.layers.LeakyReLU(0.001)),
             tf.keras.layers.Conv2DTranspose(filters=62, kernel_size=3, strides=2, padding='same',
                                             activation=tf.keras.layers.LeakyReLU(0.001)),
-            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=1, padding='same')
+            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=1, strides=1, padding='same')
         ]
         return tf.keras.Sequential(layers)
 
