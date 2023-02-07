@@ -64,9 +64,6 @@
       <module name="rapid_feature_identification" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="C:\Users\frieden\anaconda3\envs\CVAE_Tensorflow\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -213,7 +210,7 @@
       <workItem from="1675378544054" duration="1770000" />
       <workItem from="1675803557454" duration="16000" />
       <workItem from="1675804145685" duration="30000" />
-      <workItem from="1675804240893" duration="38000" />
+      <workItem from="1675804240893" duration="52000" />
     </task>
     <servers />
   </component>
