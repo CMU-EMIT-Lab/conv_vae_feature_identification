@@ -18,20 +18,20 @@ print(f"Start Execution: {datetime.datetime.now()}")
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'test_dataset'
-sub_dir = 'watermark_test_2'
-new_micrographs = False
+parent_dir = 'fatigue_test'
+sub_dir = 'fatigue_test_5'
+new_micrographs = True
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=2000,
-    batch_size=128,
+    epochs=10000,
+    batch_size=256,
     image_size=128,
-    latent_dim=2056,
+    latent_dim=4092,
     num_examples_to_generate=16,
-    learning_rate=0.0005,
-    section_divisibility=15
+    learning_rate=0.0001,
+    section_divisibility=10
 )
 
 if new_micrographs:
@@ -46,7 +46,6 @@ print(f"End of CVAE Training: {datetime.datetime.now()}")
 # Get arrays of encoded data from model
 train_encodings, train_labels, train_files, split_train_encodings, _ = get_encoding(cvae, train_ds)
 test_encodings, test_labels, test_files, _, _ = get_encoding(cvae, test_ds)
-print(f"End of Random Forest Regression: {datetime.datetime.now()}")
 
 # Run arrays through random forest regression to figure out if any can separate the labels
 valuable_encodings, forest_model = random_forest(
@@ -56,6 +55,8 @@ valuable_encodings, forest_model = random_forest(
     test_labels,
     check_params
 )
+print(f"End of Random Forest Regression: {datetime.datetime.now()}")
+
 # Save the useful encodings and show the tree (saved to "outputs" folder)
 show_split(split_train_encodings, valuable_encodings, forest_model, check_params)
 save_tree(forest_model, check_params)
