@@ -110,7 +110,7 @@ def save_loss_plot(train_loss, valid_loss, name):
 def get_dataset(parent_dir, sub_dir, image_size, batch_size):
     datagen = tf.keras.preprocessing.image_dataset_from_directory(
         directory=f'../input/{parent_dir}/{sub_dir}/',
-        color_mode='grayscale',
+        color_mode='grayscale', #rgba
         labels='inferred',
         image_size=(image_size, image_size),
         batch_size=batch_size

@@ -75,6 +75,7 @@ def remove_background(img, contours):
 
     # Create a contour to match the largest object in the image
     cv2.drawContours(background, [max(contours, key=cv2.contourArea)], 0, 255, -1)
+    background = cv2.GaussianBlur(background, (0, 0), sigmaX=3, sigmaY=3)
 
     # max the alpha channel of the non-empty area
     background = skimage.exposure.rescale_intensity(background, in_range=(127.5, 255), out_range=(0, 255))
