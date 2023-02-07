@@ -22,6 +22,7 @@ class Encoder(tf.keras.layers.Layer):
             tf.keras.layers.InputLayer(input_shape=self.image_size),
             tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), padding='valid',
                                    activation=tf.keras.layers.LeakyReLU(0.001)),
+            tf.keras.layers.MaxPooling2D(),
             tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='valid',
                                    activation=tf.keras.layers.LeakyReLU(0.001)),
             tf.keras.layers.Flatten(),
@@ -53,6 +54,7 @@ class Decoder(tf.keras.layers.Layer):
             ),
             tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=2, padding='same',
                                             activation=tf.keras.layers.LeakyReLU(0.001)),
+            tf.keras.layers.MaxUnpooling2D(),
             tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=2, padding='same',
                                             activation=tf.keras.layers.LeakyReLU(0.001)),
             tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=1, padding='same')
