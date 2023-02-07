@@ -21,9 +21,10 @@ class Encoder(tf.keras.layers.Layer):
         layers = [
             tf.keras.layers.InputLayer(input_shape=self.image_size),
             tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), padding='valid',
-                                   activation=tf.keras.layers.LeakyReLU(0.01)),
+                                   activation=tf.keras.layers.LeakyReLU(0.001)),
+            tf.keras.layers.MaxPooling2D(),
             tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='valid',
-                                   activation=tf.keras.layers.LeakyReLU(0.01)),
+                                   activation=tf.keras.layers.LeakyReLU(0.001)),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(self.latent_dim + self.latent_dim, activation=None)
         ]  # *2 because number of parameters for both mean and (raw) standard deviation
@@ -52,10 +53,11 @@ class Decoder(tf.keras.layers.Layer):
                               self.image_size)
             ),
             tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=2, padding='same',
-                                            activation=tf.keras.layers.LeakyReLU(0.01)),
-            tf.keras.layers.Conv2DTranspose(filters=62, kernel_size=3, strides=2, padding='same',
-                                            activation=tf.keras.layers.LeakyReLU(0.01)),
-            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=1, strides=1, padding='same')
+                                            activation=tf.keras.layers.LeakyReLU(0.001)),
+            tf.keras.layers.MaxUnpooling2D(),
+            tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=2, padding='same',
+                                            activation=tf.keras.layers.LeakyReLU(0.001)),
+            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=1, padding='same')
         ]
         return tf.keras.Sequential(layers)
 

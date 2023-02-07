@@ -84,7 +84,7 @@ def remove_background(img, contours):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
 
     # Make everything that's not the sample invisible by setting the alpha channel to match the background mask
-    img[:, :, 3] = background
+    img[background == 0] = (0, 0, 0, 255)
     return img
 
 
