@@ -53,7 +53,7 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
     plt.savefig(f'../outputs/{name}/output{epoch}.jpg')
-    plt.show()
+    plt.close()
 
     if epoch == max_epoch:
         df = pd.DataFrame(listed_z)
