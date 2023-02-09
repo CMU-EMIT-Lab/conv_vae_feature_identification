@@ -20,15 +20,15 @@ print('Tensorflow: %s' % tf.__version__)  # print version
 
 parent_dir = 'fatigue_test'
 sub_dir = 'fatigue_test_5'
-new_micrographs = True
+new_micrographs = False
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
     epochs=10000,
-    batch_size=256,
+    batch_size=512,
     image_size=128,
-    latent_dim=4092,
+    latent_dim=2048,
     num_examples_to_generate=16,
     learning_rate=0.0001,
     section_divisibility=10
