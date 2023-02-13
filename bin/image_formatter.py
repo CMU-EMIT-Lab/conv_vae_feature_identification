@@ -154,7 +154,7 @@ def slice_utility(img, params):
     # This specifies the distance between width and height rectangle corners per the section divisibility
     cutter_w = w//params.section_divisibility
     cutter_h = h//params.section_divisibility
-    sectors = range(1, params.section_divisibility+1)
+    sectors = range(2, params.section_divisibility)
 
     # Make the combinations of the widths and heights we need to chop up the image grid-wise
     slap_chop = [(w, h) for w in sectors for h in sectors]
