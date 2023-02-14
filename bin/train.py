@@ -122,6 +122,7 @@ def train_model(
         if epoch % 25 == 0 or epoch == 1 or epoch == params.epochs:
             save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
     # generate_latent_iteration(model, epoch, test_set, log_lists, name)
+    save_loss_plot(e_loss_record, r_loss_record, params.name)
     print('TRAINING COMPLETE')
     return model, test_set, train_set
 
