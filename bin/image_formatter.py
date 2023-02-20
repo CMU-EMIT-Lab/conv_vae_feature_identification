@@ -179,23 +179,23 @@ def slice_images(from_bin, inputs, crit, params):
             if count % params.test_train_split:
                 if from_bin:
                     cv2.imwrite(
-                        f'../../input/{params.parent_dir}/val/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
-                        section
-                    )
-                else:
-                    cv2.imwrite(
-                        f'../input/{params.parent_dir}/val/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
-                        section
-                    )
-            else:
-                if from_bin:
-                    cv2.imwrite(
                         f'../../input/{params.parent_dir}/train/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
                         section
                     )
                 else:
                     cv2.imwrite(
                         f'../input/{params.parent_dir}/train/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
+                        section
+                    )
+            else:
+                if from_bin:
+                    cv2.imwrite(
+                        f'../../input/{params.parent_dir}/val/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
+                        section
+                    )
+                else:
+                    cv2.imwrite(
+                        f'../input/{params.parent_dir}/val/{crit}/img_{i}_section_w{axis[0]}_h{axis[1]}.png',
                         section
                     )
         loader_pbar(i, crit, pbar)
