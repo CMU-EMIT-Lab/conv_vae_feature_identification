@@ -158,6 +158,10 @@ def save_forest(forest, importance, mse, name):
 
 
 def show_split(parted_encodings, forest_importance, regressor, params):
+    plt.rcParams.update({
+        'font.size': 18})
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["font.serif"] = ["Times New Roman"]
     # most important feature
     trees = [tree for tree in regressor.estimators_]
     top_dims = []
@@ -209,7 +213,10 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
     if not path.isdir(f'../features/{name}/not_useful/'):
         makedirs(f'../features/{name}/not_useful/')
 
-    predictions = model.sample(useful_encodings)
+    if useful_encodings.shape[0] > 200:
+        predictions = model.sample(useful_encodings[:200, :])
+    else:
+        predictions = model.sample(useful_encodings)
     plt.figure(figsize=(15, 15))
     count = 0
     for i in range(predictions.shape[0]):
@@ -219,7 +226,10 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
         plt.close()
         count += 1
 
-    predictions = model.sample(not_useful_encodings)
+    if not_useful_encodings.shape[0] > 200:
+        predictions = model.sample(not_useful_encodings[:200, :])
+    else:
+        predictions = model.sample(not_useful_encodings)
     plt.figure(figsize=(15, 15))
     count = 0
     for i in range(predictions.shape[0]):
