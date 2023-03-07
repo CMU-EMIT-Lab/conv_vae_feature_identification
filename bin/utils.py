@@ -159,7 +159,7 @@ def save_forest(forest, importance, mse, name):
 
 def show_split(parted_encodings, forest_importance, regressor, params):
     plt.rcParams.update({
-        'font.size': 18})
+        'font.size': 20})
     plt.rcParams["font.family"] = "serif"
     plt.rcParams["font.serif"] = ["Times New Roman"]
     # most important feature
@@ -174,24 +174,26 @@ def show_split(parted_encodings, forest_importance, regressor, params):
             threshold[i].append(split_val)
 
     # This will only every show two classifications by design
-    colors = ['#595959', '#bfbfbf']
+    colors = ['#595959', '#E7E7E7']
+    fig = plt.figure(figsize=(20, 20))
     for i in range(len(top_dims)):
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
                 color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c}')
         plt.axvline(
-            np.min(threshold[i]), color='k', linestyle='dashed', linewidth=1, label='Decision Threshold Limits'
+            np.min(threshold[i]), color='k', linestyle='dashed', linewidth=3, label='Decision Threshold Limits'
         )
         plt.axvline(
-            np.mean(threshold[i]), color='k', linestyle='solid', linewidth=1, label='Average Decision Threshold'
+            np.mean(threshold[i]), color='k', linestyle='solid', linewidth=3, label='Average Decision Threshold'
         )
         plt.axvline(
-            np.max(threshold[i]), color='k', linestyle='dashed', linewidth=1
+            np.max(threshold[i]), color='k', linestyle='dashed', linewidth=3
         )
         plt.xlabel(f'Latent Dimension {top_dims[i]} Values')
         plt.ylabel('Number of Images Encoded to Dimension')
         plt.legend(loc='upper left', frameon=False)
+        plt.tight_layout()
         plt.savefig(f'../outputs/{params.name}/no{i}_valuable_dimension_{top_dims[i]}.jpg',
                     transparent=True, dpi=100)
         plt.show()
