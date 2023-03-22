@@ -158,10 +158,7 @@ def save_forest(forest, importance, mse, name):
 
 
 def show_split(parted_encodings, forest_importance, regressor, params):
-    plt.rcParams.update({
-        'font.size': 20})
-    plt.rcParams["font.family"] = "serif"
-    plt.rcParams["font.serif"] = ["Times New Roman"]
+
     # most important feature
     trees = [tree for tree in regressor.estimators_]
     top_dims = []
@@ -175,8 +172,13 @@ def show_split(parted_encodings, forest_importance, regressor, params):
 
     # This will only every show two classifications by design
     colors = ['#595959', '#E7E7E7']
-    fig = plt.figure(figsize=(20, 20))
+
     for i in range(len(top_dims)):
+        fig = plt.figure(figsize=(10, 10))
+        plt.rcParams.update({
+            'font.size': 45})
+        plt.rcParams["font.family"] = "serif"
+        plt.rcParams["font.serif"] = ["Times New Roman"]
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
