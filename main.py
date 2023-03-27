@@ -20,7 +20,7 @@ print('Tensorflow: %s' % tf.__version__)  # print version
 
 parent_dir = 'fatigue_test'
 sub_dir = 'fatigue_test_20_lr0001'
-new_micrographs = True
+new_micrographs = False
 
 check_params = TrainParams(
     parent_dir=parent_dir,
