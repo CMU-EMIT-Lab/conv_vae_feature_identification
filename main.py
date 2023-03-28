@@ -25,12 +25,12 @@ new_micrographs = False
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=5000,
-    batch_size=524,
+    epochs=10000,
+    batch_size=246,
     image_size=128,
-    latent_dim=int(524),
+    latent_dim=int(1024),
     num_examples_to_generate=16,
-    learning_rate=0.0001,
+    learning_rate=0.00005,
     section_divisibility=10,
     bright_sample=True
 )
