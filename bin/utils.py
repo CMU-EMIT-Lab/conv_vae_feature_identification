@@ -113,7 +113,8 @@ def get_dataset(parent_dir, sub_dir, image_size, batch_size):
         color_mode='grayscale', #rgba
         labels='inferred',
         image_size=(image_size, image_size),
-        batch_size=batch_size
+        batch_size=batch_size,
+        seed=11
     )
     return datagen
 

@@ -52,6 +52,7 @@ def load_micrographs(params, classification):
             ) if not file.startswith('.')
                   ]
     outputs = [cv2.cvtColor(img, cv2.COLOR_BGR2RGB) for img in outputs]
+    outputs = [cv2.normalize(output, output, 0, 255, norm_type=cv2.NORM_MINMAX) for output in outputs]
     return outputs
 
 
@@ -107,7 +108,7 @@ def crop_micrographs(inputs, params):
         if params.bright_sample:
             _, threshold = cv2.threshold(
                 cv2.cvtColor(img, cv2.COLOR_RGB2GRAY),
-                thresh=100,
+                thresh=145,
                 maxval=255,
                 type=cv2.THRESH_BINARY
             )
@@ -116,7 +117,7 @@ def crop_micrographs(inputs, params):
         else:
             _, threshold = cv2.threshold(
                 cv2.cvtColor(img, cv2.COLOR_RGB2GRAY),
-                thresh=100,
+                thresh=20,
                 maxval=255,
                 type=cv2.THRESH_BINARY_INVERSE
             )
@@ -135,8 +136,8 @@ def crop_micrographs(inputs, params):
             areas.append([w*h, x, y, w, h])
         areas.sort(reverse=True)
 
-        # Record the x, y edges of the largest micrograph
-        x, y, w, h = areas[1][1], areas[1][2], areas[1][3], areas[1][4]
+        # Record the x, y edges of the largest micrograph (Change to 1 for micrographs)
+        x, y, w, h = areas[0][1], areas[0][2], areas[0][3], areas[0][4]
 
         # Make the background of the sample transparent
         img = remove_background(img, contours)
@@ -212,14 +213,14 @@ def format_images(from_bin, params):
 
 
 if __name__ == "__main__":
-    parent_dir = 'test_dataset'
-    sub_dir = 'test_model'
+    parent_dir = 'CT_Test'
+    sub_dir = 'CT'
 
     from bin.settings import TrainParams
     check_params = TrainParams(
         parent_dir=parent_dir,
         name=sub_dir,
-        section_divisibility=15,
+        section_divisibility=5,
         test_train_split=5,
         # If your sample is brighter than the background, make true - this influences crop_micrographs
         bright_sample=True
