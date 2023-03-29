@@ -26,11 +26,11 @@ check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
     epochs=10000,
-    batch_size=246,
+    batch_size=512,
     image_size=128,
-    latent_dim=int(1024),
+    latent_dim=int(528),
     num_examples_to_generate=16,
-    learning_rate=0.00005,
+    learning_rate=0.0001,
     section_divisibility=10,
     bright_sample=True
 )
