@@ -136,8 +136,9 @@ def crop_micrographs(inputs, params):
             areas.append([w*h, x, y, w, h])
         areas.sort(reverse=True)
 
-        # Record the x, y edges of the largest micrograph (Change to 1 for micrographs)
-        x, y, w, h = areas[0][1], areas[0][2], areas[0][3], areas[0][4]
+        # Record the x, y edges of the largest micrograph (idx= 1 for micrographs, 0 for CT)
+        idx = 1
+        x, y, w, h = areas[idx][1], areas[idx][2], areas[idx][3], areas[idx][4]
 
         # Make the background of the sample transparent
         img = remove_background(img, contours)
