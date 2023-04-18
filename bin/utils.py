@@ -177,7 +177,7 @@ def show_split(parted_encodings, forest_importance, regressor, params):
     for i in range(len(top_dims)):
         fig = plt.figure(figsize=(10, 10))
         plt.rcParams.update({
-            'font.size': 28})
+            'font.size': 18})
         plt.rcParams["font.family"] = "serif"
         plt.rcParams["font.serif"] = ["Times New Roman"]
         for c in parted_encodings:

@@ -18,19 +18,19 @@ print(f"Start Execution: {datetime.datetime.now()}")
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'fatigue_test_Overall'
-sub_dir = 'fatigue_test_21_lr00005'
-new_micrographs = True
+parent_dir = 'data_binary_watermark'
+sub_dir = 'watermark_for_figures'
+new_micrographs = False
 
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=10000,
+    epochs=3000,
     batch_size=246,
     image_size=128,
     latent_dim=int(1024),
     num_examples_to_generate=16,
-    learning_rate=0.00005,
+    learning_rate=0.0001,
     section_divisibility=10,
     bright_sample=True
 )
