@@ -11,8 +11,8 @@ import matplotlib as mpl
 from os import path, mkdir, makedirs
 import tensorflow as tf
 import pandas as pd
-mpl.pyplot.rcParams.update({'font.size': 12})
-mpl.pyplot.rcParams.update({'font.family': 'sans'})
+mpl.pyplot.rcParams.update({'font.size': 14})
+mpl.pyplot.rcParams.update({'font.family': 'serif'})
 
 
 def check_dir(in_out, from_bin, name):
@@ -48,7 +48,7 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
     for i in range(predictions.shape[0]):
         plt.subplot(4, 4, i + 1)
         plt.imshow(predictions[i, :, :, 0], cmap=plt.get_cmap('Greys_r'))
-        plt.title(int(test_label[i]), size=32)
+        plt.title(int(test_label[i]+1), size=32)
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
@@ -81,7 +81,7 @@ def input_images(image, name, label):
     for i in range(16):
         plt.subplot(4, 4, i + 1)
         plt.imshow(image[i].numpy() / 255, cmap=plt.get_cmap('Greys_r'))
-        plt.title(int(label[i]), size=32)
+        plt.title(int(label[i]+1), size=32)
         plt.axis("off")
     plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
@@ -143,6 +143,10 @@ def save_forest(forest, importance, mse, name):
 
     # Visualize the important encodings
     fig, ax = plt.subplots()
+    plt.rcParams.update({
+        'font.size': 22})
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["font.serif"] = ["Times New Roman"]
     forest.plot.bar(ax=ax, color='gray')
     ax.set_title(f"MDI - rMSE = {np.round(mse, 2)}", fontsize=18)
     ax.set_ylabel("Mean decrease in impurity", fontsize=16)
@@ -177,13 +181,13 @@ def show_split(parted_encodings, forest_importance, regressor, params):
     for i in range(len(top_dims)):
         fig = plt.figure(figsize=(10, 10))
         plt.rcParams.update({
-            'font.size': 18})
+            'font.size': 22})
         plt.rcParams["font.family"] = "serif"
         plt.rcParams["font.serif"] = ["Times New Roman"]
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
-                color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c}')
+                color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c+1}')
         plt.axvline(
             np.min(threshold[i]), color='k', linestyle='dashed', linewidth=3, label='Decision Threshold Limits'
         )

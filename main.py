@@ -19,7 +19,7 @@ print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('
 print('Tensorflow: %s' % tf.__version__)  # print version
 
 parent_dir = 'data_binary_watermark'
-sub_dir = 'watermark_for_figures'
+sub_dir = 'watermark_for_figures_4'
 new_micrographs = False
 
 check_params = TrainParams(
@@ -28,7 +28,7 @@ check_params = TrainParams(
     epochs=3000,
     batch_size=246,
     image_size=128,
-    latent_dim=int(1024),
+    latent_dim=int(2056),
     num_examples_to_generate=16,
     learning_rate=0.0001,
     section_divisibility=10,
