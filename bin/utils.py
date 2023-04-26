@@ -48,7 +48,7 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
     for i in range(predictions.shape[0]):
         plt.subplot(4, 4, i + 1)
         plt.imshow(predictions[i, :, :, 0], cmap=plt.get_cmap('Greys_r'))
-        plt.title(int(test_label[i]+1), size=32)
+        plt.title(int(test_label[i]), size=32)
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
@@ -81,7 +81,7 @@ def input_images(image, name, label):
     for i in range(16):
         plt.subplot(4, 4, i + 1)
         plt.imshow(image[i].numpy() / 255, cmap=plt.get_cmap('Greys_r'))
-        plt.title(int(label[i]+1), size=32)
+        plt.title(int(label[i]), size=32)
         plt.axis("off")
     plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
@@ -187,7 +187,7 @@ def show_split(parted_encodings, forest_importance, regressor, params):
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
-                color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c+1}')
+                color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c}')
         plt.axvline(
             np.min(threshold[i]), color='k', linestyle='dashed', linewidth=3, label='Decision Threshold Limits'
         )
