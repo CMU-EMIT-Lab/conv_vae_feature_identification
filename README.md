@@ -1,4 +1,4 @@
-# rapid_feature_identification
+# conv_vae_feature_identification
 Created by: William Frieden Templeton \
 Date: 25 January 2023 \
 The purpose of this code is to rapidly identify features in micrographs (or images) that can be used to \
