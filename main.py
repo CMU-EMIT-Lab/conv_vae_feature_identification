@@ -18,8 +18,8 @@ print(f"Start Execution: {datetime.datetime.now()}")
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 print('Tensorflow: %s' % tf.__version__)  # print version
 
-parent_dir = 'fatigue_test'
-sub_dir = 'fatigue_test_22_lr00005'
+parent_dir = 'CT'
+sub_dir = 'CT_test_0001'
 new_micrographs = False
 
 check_params = TrainParams(
