@@ -149,26 +149,31 @@ def crop_micrographs(inputs, params):
 
 
 def slice_utility(img, params):
+    if params.section_divisibility == 1:
+        sections = [img]
+        h, w, channels = img.shape
+        return sections, [[0, 0]], w, h
+    else:
 
-    # Get the shape of the image
-    h, w, channels = img.shape
+        # Get the shape of the image
+        h, w, channels = img.shape
 
-    # This specifies the distance between width and height rectangle corners per the section divisibility
-    cutter_w = w//params.section_divisibility
-    cutter_h = h//params.section_divisibility
-    sectors = range(2, params.section_divisibility)
+        # This specifies the distance between width and height rectangle corners per the section divisibility
+        cutter_w = w//params.section_divisibility
+        cutter_h = h//params.section_divisibility
+        sectors = range(2, params.section_divisibility)
 
-    # Make the combinations of the widths and heights we need to chop up the image grid-wise
-    slap_chop = [(w, h) for w in sectors for h in sectors]
+        # Make the combinations of the widths and heights we need to chop up the image grid-wise
+        slap_chop = [(w, h) for w in sectors for h in sectors]
 
-    # Get the sections per the section interval and location on the image
-    sections = [img[cutter_h * (h - 1):cutter_h * h, cutter_w * (w - 1):cutter_w * w] for w, h in slap_chop]
+        # Get the sections per the section interval and location on the image
+        sections = [img[cutter_h * (h - 1):cutter_h * h, cutter_w * (w - 1):cutter_w * w] for w, h in slap_chop]
 
-    # Also record the location of the images for file path data
-    axes = [[w, h] for w, h in slap_chop]
+        # Also record the location of the images for file path data
+        axes = [[w, h] for w, h in slap_chop]
 
-    # Return the sections, the axes, and the interval
-    return sections, axes, cutter_w, cutter_h
+        # Return the sections, the axes, and the interval
+        return sections, axes, cutter_w, cutter_h
 
 
 def slice_images(from_bin, inputs, crit, params):
