@@ -98,8 +98,9 @@ def start_llist(latent_dim):
 def save_loss_plot(train_loss, valid_loss, name):
     # loss plots
     plt.figure(figsize=(10, 7))
-    plt.plot(train_loss[1:], color='orange', label='train loss')
-    plt.plot(valid_loss[1:], color='red', label='val loss')
+    plt.plot(train_loss[:], color='orange', label='train loss')
+    plt.plot(valid_loss[:], color='red', label='val loss')
+    plt.ylim([0, 10000])
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()

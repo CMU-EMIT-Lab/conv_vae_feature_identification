@@ -123,6 +123,8 @@ def train_model(
             save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
     # generate_latent_iteration(model, epoch, test_set, log_lists, name)
     save_loss_plot(e_loss_record, r_loss_record, params.name)
+    np.savetxt('r_loss_record.txt', r_loss_record)
+    np.savetxt('e_loss_record.txt', e_loss_record)
     print('TRAINING COMPLETE')
     return model, test_set, train_set
 
