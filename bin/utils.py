@@ -115,7 +115,8 @@ def get_dataset(parent_dir, sub_dir, image_size, batch_size):
         labels='inferred',
         image_size=(image_size, image_size),
         batch_size=batch_size,
-        seed=11
+        # seed=11
+        seed=1
     )
     return datagen
 
