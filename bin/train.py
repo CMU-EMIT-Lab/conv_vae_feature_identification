@@ -10,7 +10,8 @@ from bin.engine import train, validate
 from bin.utils import *
 from bin.model import *
 from bin.settings import TrainParams
-
+from sklearn.model_selection import KFold
+import copy
 
 def load_data(params):
     train_loader = get_dataset(
@@ -72,7 +73,8 @@ def initialize_training(params):
     e_loss_record = []
     r_loss_record = []
     k_loss_record = []
-    return pbar, e_loss_record, r_loss_record, k_loss_record
+    ssim_record = []
+    return pbar, e_loss_record, r_loss_record, k_loss_record, ssim_record
 
 
 def train_model(
@@ -85,7 +87,10 @@ def train_model(
         k_loss_record,
         r_loss_record,
         e_loss_record,
-        params):
+        ssim_record,
+        params,
+        kf,
+        k):
     """
     Inputs:
     model
@@ -96,8 +101,86 @@ def train_model(
     name
     """
     print(f"Training Started on {params.parent_dir} Dataset")
+    ssim_scores = None
+    mean_ssim = None
+    std_ssim = None
+    if kf:
+        datagen = get_dataset(parent_dir=params.parent_dir, sub_dir='train',
+                              image_size=params.image_size, batch_size=params.batch_size)
+        images = np.concatenate([x for x, _ in datagen], axis=0)
+        labels = np.concatenate([y for _, y in datagen], axis=0)
+
+        avg_ssim_scores = []
+        std_ssim_scores = []
+        ssim_scores = {}
+        for fold, (train_indices, val_indices) in enumerate(kf.split(images)):
+            print(f"Training Fold {fold + 1}/{k}")
+            train_images_fold, train_labels_fold = images[train_indices], labels[train_indices]
+            val_images_fold, val_labels_fold = images[val_indices], labels[val_indices]
+
+            train_dataset = tf.data.Dataset.from_tensor_slices((train_images_fold, train_labels_fold))
+            train_dataset = train_dataset.batch(params.batch_size)
+
+            val_dataset = tf.data.Dataset.from_tensor_slices((val_images_fold, val_labels_fold))
+            val_dataset = val_dataset.batch(params.batch_size)
+
+            # I am inputting train_labels twice because I have a vestigial function that I don't want to remove
+            k_train_set = train_dataset.map(
+                lambda images, labels: format_dataset(train_images_fold, train_labels_fold, val_labels_fold)
+            )
+            k_val_set = val_dataset.map(
+                lambda images, labels: format_dataset(val_images_fold, val_labels_fold, val_labels_fold)
+            )
+
+            for epoch in pbar:
+                reco_loss, elbo_loss, kl_loss = train(
+                    model, k_train_set, params.learning_rate
+                )
+
+                # Validate the model
+                elbo_loss, reco_loss, kl_loss = validate(
+                    model, k_val_set, reco_loss, elbo_loss, kl_loss
+                )
+
+                # Record the loss
+                r_loss = -reco_loss.result()
+                e_loss = elbo_loss.result()
+                k_loss = kl_loss.result()
+
+                r_loss_record.append(r_loss)
+                e_loss_record.append(e_loss)
+                k_loss_record.append(k_loss)
+
+                update_pbar(e_loss, r_loss, k_loss, pbar)
+
+            val_images_fold = np.concatenate([x for x, _, _ in k_val_set], axis=0)
+            mean, log_var = model.encode(val_images_fold)
+            z = model.re_parameterize(mean, log_var)
+            val_reconstructions = model.sample(
+                z)
+            ssims = []
+            for i in range(len(val_images_fold)):
+                ssims.append(calculate_ssim(val_images_fold[i], val_reconstructions[i].numpy()))
+            ssim_scores[fold] = copy.copy(ssims)
+            avg_ssim_scores.append(np.mean(ssims))
+            std_ssim_scores.append(np.std(ssims))
+
+        mean_ssim = np.mean(avg_ssim_scores)
+        std_ssim = np.std(std_ssim_scores)
+        print(f'MEAN SSIM {mean_ssim}')
+        print(f'STD SSIM {std_ssim}')
+        with open(f'../outputs/{params.name}/ssim_scores.txt', 'w') as f:
+            for key, value in ssim_scores.items():
+                f.write('%s:%s:%s:%s\n' % (key, value, avg_ssim_scores[key], std_ssim_scores[key]))
+        with open(f'../outputs/{params.name}/Summary_ssim_scores.txt', 'w') as f:
+            f.write('%s:%s\n' % ('Mean', mean_ssim))
+            f.write('%s:%s\n' % ('STD', std_ssim))
+
+
     for epoch in pbar:
         # Train the model
+
+
         reco_loss, elbo_loss, kl_loss = train(
             model, train_set, params.learning_rate
         )
@@ -120,10 +203,13 @@ def train_model(
 
         # make an example of the reconstruction
         if epoch % 25 == 0 or epoch == 1 or epoch == params.epochs:
-            save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
+            reconimg = save_reconstructed_images(model, epoch, test_sample, test_label, params.epochs, params.name)
     # generate_latent_iteration(model, epoch, test_set, log_lists, name)
+    save_loss_plot(e_loss_record, r_loss_record, params.name)
+    np.savetxt('r_loss_record.txt', r_loss_record)
+    np.savetxt('e_loss_record.txt', e_loss_record)
     print('TRAINING COMPLETE')
-    return model, test_set, train_set
+    return model, test_set, train_set, ssim_scores, mean_ssim, std_ssim
 
 
 def train_a_model(train_params):
@@ -135,12 +221,19 @@ def train_a_model(train_params):
         image_size=train_params.image_size
     )
 
+    if train_params.dofolds:
+        kf = KFold(n_splits=train_params.kfolds, shuffle=True, random_state=42)
+    else:
+        kf = False
+
+
     test_set, train_set = load_data(train_params)
     log_lists, test_sample, test_label = sample_inputs(
         model, Encoder, Decoder, test_set, train_params
     )
-    pbar, e_loss_record, r_loss_record, k_loss_record = initialize_training(train_params)
-    model, test_sample, test_label = train_model(
+    pbar, e_loss_record, r_loss_record, k_loss_record, ssim_record = initialize_training(train_params)
+
+    model, test_sample, test_label, ssim_scores, mean_ssim, std_ssim = train_model(
         model=model,
         test_set=test_set,
         train_set=train_set,
@@ -150,9 +243,12 @@ def train_a_model(train_params):
         k_loss_record=k_loss_record,
         r_loss_record=r_loss_record,
         e_loss_record=e_loss_record,
-        params=train_params
+        ssim_record=ssim_record,
+        params=train_params,
+        kf=kf,
+        k=train_params.kfolds
     )
-    return model, test_set, train_set
+    return model, test_set, train_set, ssim_scores, mean_ssim, std_ssim
 
 
 if __name__ == "__main__":

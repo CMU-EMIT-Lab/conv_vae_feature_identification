@@ -8,6 +8,9 @@ Date: January 30, 2023
 import sklearn.ensemble as sk_e
 import sklearn.metrics as sk_m
 from bin.utils import *
+import random
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 def get_encoding(model, ds):
@@ -37,12 +40,76 @@ def get_encoding(model, ds):
 
 def random_forest(x_train, y_train, x_test, y_test, params):
     from bin.utils import save_forest
+
+    if params.dofolds:
+        # Define the number of folds
+        k = 5
+        # Initialize lists to store evaluation metrics
+        accuracy_scores = []
+        precision_scores = []
+        recall_scores = []
+        f1_scores = []
+
+        kf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
+        # Iterate over the folds
+        for train_index, test_index in kf.split(x_train, y_train):
+            # Split the data into train and test sets for the current fold
+            X_train, X_test = x_train[train_index], x_train[test_index]
+            Y_train, Y_test = y_train[train_index], y_train[test_index]
+
+            # Initialize the Random Forest model
+            kfoldmodel = sk_e.RandomForestClassifier(
+                n_estimators=2000, max_depth=100, random_state=random.seed(1234)
+            )
+
+            # Fit the model on the training data
+            kfoldmodel.fit(X_train, Y_train)
+            # Predict on the test data
+            y_pred = kfoldmodel.predict(X_test)
+
+            # Calculate evaluation metrics
+            accuracy = np.mean(y_pred == Y_test)
+            precision = precision_score(Y_test, y_pred)
+            recall = recall_score(Y_test, y_pred)
+            f1 = f1_score(Y_test, y_pred)
+
+            # Append scores to the respective lists
+            accuracy_scores.append(accuracy)
+            precision_scores.append(precision)
+            recall_scores.append(recall)
+            f1_scores.append(f1)
+        # Calculate the mean and standard deviation of the evaluation metrics
+        mean_accuracy = np.mean(accuracy_scores)
+        std_accuracy = np.std(accuracy_scores)
+        mean_precision = np.mean(precision_scores)
+        std_precision = np.std(precision_scores)
+        mean_recall = np.mean(recall_scores)
+        std_recall = np.std(recall_scores)
+        mean_f1 = np.mean(f1_scores)
+        std_f1 = np.std(f1_scores)
+
+        with open(f'../outputs/{params.name}/rf_ssim.txt', 'w') as f:
+            f.write('%s:%s\n' % ('mean_accuracy', mean_accuracy))
+            f.write('%s:%s\n' % ('std_accuracy', std_accuracy))
+            f.write('%s:%s\n' % ('mean_precision', mean_precision))
+            f.write('%s:%s\n' % ('std_precision', std_precision))
+            f.write('%s:%s\n' % ('mean_recall', mean_recall))
+            f.write('%s:%s\n' % ('std_recall', std_recall))
+            f.write('%s:%s\n' % ('mean_f1', mean_f1))
+            f.write('%s:%s\n' % ('std_f1', std_f1))
+
     # x == encodings, y == labels, f == filenames
     # We want a low depth because we're trying to identify the key features - low overall RF accuracy is unimportant
-    regressor = sk_e.RandomForestRegressor(n_estimators=1000, max_depth=4)
+    regressor = sk_e.RandomForestClassifier(
+        n_estimators=2000, max_depth=100, random_state=random.seed(1234)
+    )
     regressor.fit(x_train, y_train)
-    prediction = regressor.predict(x_test)
-    mse = sk_m.mean_squared_error(y_test, prediction)
+    y_pred = regressor.predict(x_test)
+
+    accuracy = np.mean(y_pred == y_test)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
 
     # Importance is Mean Decrease in Impurity
     # Mean decrease in impurity is the total decrease in node impurity
@@ -54,7 +121,7 @@ def random_forest(x_train, y_train, x_test, y_test, params):
     feature_names = [int(i) for i in list(np.linspace(0, x_train.shape[1]-1, x_train.shape[1]))]
     forest_importance = pd.Series(find_importance, index=feature_names).sort_values(ascending=False)
 
-    save_forest(forest_importance, find_importance, mse**0.5, params.name)
+    save_forest(forest_importance, find_importance, f1, params.name)
     return forest_importance, regressor
 
 

@@ -11,8 +11,8 @@ import matplotlib as mpl
 from os import path, mkdir, makedirs
 import tensorflow as tf
 import pandas as pd
-mpl.pyplot.rcParams.update({'font.size': 12})
-mpl.pyplot.rcParams.update({'font.family': 'sans'})
+mpl.pyplot.rcParams.update({'font.size': 14})
+mpl.pyplot.rcParams.update({'font.family': 'serif'})
 
 
 def check_dir(in_out, from_bin, name):
@@ -52,12 +52,13 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
-    plt.savefig(f'../outputs/{name}/output{epoch}.jpg')
-    plt.show()
+    plt.savefig(f'../outputs/{name}/output{epoch}.jpg', dpi=100)
+    plt.close()
 
     if epoch == max_epoch:
         df = pd.DataFrame(listed_z)
         df.to_csv(f'../outputs/{name}/z_pred_sample.csv')
+    return f'../outputs/{name}/output{epoch}.jpg'
 
 
 def printer(model, branch, name):
@@ -85,6 +86,12 @@ def input_images(image, name, label):
         plt.axis("off")
     plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
+    return f'../outputs/{name}/input_example.png'
+
+
+def calculate_ssim(image1, image2):
+    from skimage.metrics import structural_similarity as compare_ssim
+    return compare_ssim(image1[:, :, 0], image2[:, :, 0], channel_axis=None)
 
 
 def start_llist(latent_dim):
@@ -98,8 +105,9 @@ def start_llist(latent_dim):
 def save_loss_plot(train_loss, valid_loss, name):
     # loss plots
     plt.figure(figsize=(10, 7))
-    plt.plot(train_loss, color='orange', label='train loss')
-    plt.plot(valid_loss, color='red', label='val loss')
+    plt.plot(train_loss[:], color='orange', label='val loss')
+    plt.plot(valid_loss[:], color='red', label='train loss')
+    plt.ylim([0, 11000])
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
@@ -110,10 +118,12 @@ def save_loss_plot(train_loss, valid_loss, name):
 def get_dataset(parent_dir, sub_dir, image_size, batch_size):
     datagen = tf.keras.preprocessing.image_dataset_from_directory(
         directory=f'../input/{parent_dir}/{sub_dir}/',
-        color_mode='grayscale',
+        color_mode='grayscale', #rgba
         labels='inferred',
         image_size=(image_size, image_size),
-        batch_size=batch_size
+        batch_size=batch_size,
+        # seed=11
+        seed=1
     )
     return datagen
 
@@ -137,13 +147,17 @@ def loader_pbar(file, criteria, pbar):
     return pbar.set_postfix_str(f'Slicing file: {file} in {value} images')
 
 
-def save_forest(forest, importance, mse, name):
+def save_forest(forest, importance, f1, name):
     forest.to_csv(f'../outputs/{name}/ranked_latent_dims.csv')
 
     # Visualize the important encodings
     fig, ax = plt.subplots()
+    plt.rcParams.update({
+        'font.size': 22})
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams["font.serif"] = ["Times New Roman"]
     forest.plot.bar(ax=ax, color='gray')
-    ax.set_title(f"MDI - rMSE = {np.round(mse, 2)}", fontsize=18)
+    ax.set_title(f"MDI - F1 = {np.round(f1, 2)}", fontsize=18)
     ax.set_ylabel("Mean decrease in impurity", fontsize=16)
     ax.set_xlabel("Latent Dimension", fontsize=16)
     ax.set_xlim([-0.5, 5.5])
@@ -158,6 +172,7 @@ def save_forest(forest, importance, mse, name):
 
 
 def show_split(parted_encodings, forest_importance, regressor, params):
+
     # most important feature
     trees = [tree for tree in regressor.estimators_]
     top_dims = []
@@ -170,24 +185,31 @@ def show_split(parted_encodings, forest_importance, regressor, params):
             threshold[i].append(split_val)
 
     # This will only every show two classifications by design
-    colors = ['#595959', '#bfbfbf']
+    colors = ['#595959', '#E7E7E7']
+
     for i in range(len(top_dims)):
+        fig = plt.figure(figsize=(10, 10))
+        plt.rcParams.update({
+            'font.size': 22})
+        plt.rcParams["font.family"] = "serif"
+        plt.rcParams["font.serif"] = ["Times New Roman"]
         for c in parted_encodings:
             plt.hist(
                 parted_encodings[c][:, top_dims[i]],
                 color=colors[int(c)], alpha=0.5, edgecolor='black', bins=20, label=f'Label: {c}')
         plt.axvline(
-            np.min(threshold[i]), color='k', linestyle='dashed', linewidth=1, label='Decision Threshold Limits'
+            np.min(threshold[i]), color='k', linestyle='dashed', linewidth=3, label='Decision Threshold Limits'
         )
         plt.axvline(
-            np.mean(threshold[i]), color='k', linestyle='solid', linewidth=1, label='Average Decision Threshold'
+            np.mean(threshold[i]), color='k', linestyle='solid', linewidth=3, label='Average Decision Threshold'
         )
         plt.axvline(
-            np.max(threshold[i]), color='k', linestyle='dashed', linewidth=1
+            np.max(threshold[i]), color='k', linestyle='dashed', linewidth=3
         )
         plt.xlabel(f'Latent Dimension {top_dims[i]} Values')
         plt.ylabel('Number of Images Encoded to Dimension')
         plt.legend(loc='upper left', frameon=False)
+        plt.tight_layout()
         plt.savefig(f'../outputs/{params.name}/no{i}_valuable_dimension_{top_dims[i]}.jpg',
                     transparent=True, dpi=100)
         plt.show()
@@ -209,7 +231,10 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
     if not path.isdir(f'../features/{name}/not_useful/'):
         makedirs(f'../features/{name}/not_useful/')
 
-    predictions = model.sample(useful_encodings)
+    if useful_encodings.shape[0] > 200:
+        predictions = model.sample(useful_encodings[:200, :])
+    else:
+        predictions = model.sample(useful_encodings)
     plt.figure(figsize=(15, 15))
     count = 0
     for i in range(predictions.shape[0]):
@@ -219,7 +244,10 @@ def pull_key_features(useful_encodings, not_useful_encodings, model, name):
         plt.close()
         count += 1
 
-    predictions = model.sample(not_useful_encodings)
+    if not_useful_encodings.shape[0] > 200:
+        predictions = model.sample(not_useful_encodings[:200, :])
+    else:
+        predictions = model.sample(not_useful_encodings)
     plt.figure(figsize=(15, 15))
     count = 0
     for i in range(predictions.shape[0]):

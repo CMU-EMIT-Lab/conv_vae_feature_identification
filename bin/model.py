@@ -25,7 +25,7 @@ class Encoder(tf.keras.layers.Layer):
             tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), padding='valid',
                                    activation=tf.keras.layers.ReLU()),
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(self.latent_dim + self.latent_dim, activation=None)
+            tf.keras.layers.Dense(self.latent_dim/2+self.latent_dim/2, activation=None)
         ]  # *2 because number of parameters for both mean and (raw) standard deviation
         return tf.keras.Sequential(layers)
 
@@ -41,7 +41,7 @@ class Decoder(tf.keras.layers.Layer):
     # decoder
     def build(self):
         layers = [
-            tf.keras.layers.InputLayer(input_shape=(self.latent_dim,)),
+            tf.keras.layers.InputLayer(input_shape=(int(self.latent_dim/2),)),
             tf.keras.layers.Dense(
                 int(self.image_size / 4) * int(self.image_size / 4) * self.image_size,
                 activation=None
@@ -53,7 +53,7 @@ class Decoder(tf.keras.layers.Layer):
             ),
             tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=2, padding='same',
                                             activation=tf.keras.layers.ReLU()),
-            tf.keras.layers.Conv2DTranspose(filters=62, kernel_size=3, strides=2, padding='same',
+            tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=2, padding='same',
                                             activation=tf.keras.layers.ReLU()),
             tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=1, padding='same')
         ]
@@ -78,7 +78,7 @@ class CVAE(tf.keras.Model):
     @tf.function
     def sample(self, eps=None):
         if eps is None:
-            eps = tf.random.normal(shape=(100, self.latent_dim))
+            eps = tf.random.normal(shape=(100, int(self.latent_dim/2)))
         return self.decode(eps, apply_sigmoid=True)
 
     def encode(self, x):

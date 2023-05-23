@@ -18,7 +18,9 @@ class TrainParams:
                  learning_rate=0.0001,
                  section_divisibility=10,
                  test_train_split=4,
-                 bright_sample=True
+                 bright_sample=True,
+                 dofolds=True,
+                 kfolds=5
                  ):
         self.epochs = epochs
         self.parent_dir = parent_dir
@@ -31,3 +33,5 @@ class TrainParams:
         self.section_divisibility = section_divisibility
         self.test_train_split = test_train_split
         self.bright_sample = bright_sample
+        self.dofolds = dofolds
+        self.kfolds = kfolds
