@@ -25,10 +25,10 @@ new_micrographs = False
 check_params = TrainParams(
     parent_dir=parent_dir,
     name=sub_dir,
-    epochs=10,
-    batch_size=512,
+    epochs=9000,
+    batch_size=256,
     image_size=128,
-    latent_dim=int(28),
+    latent_dim=int(1028),
     num_examples_to_generate=16,
     learning_rate=0.0005,
     section_divisibility=1,  # set to 1 if full image is needed
@@ -43,7 +43,7 @@ if new_micrographs:
     sleep(1)
 
 # Train a new model
-cvae, test_ds, train_ds = train_a_model(check_params)
+cvae, test_ds, train_ds, ssim_scores, mean_ssim, std_ssim = train_a_model(check_params)
 print(f"End of CVAE Training: {datetime.datetime.now()}")
 
 # Get arrays of encoded data from model
@@ -76,4 +76,4 @@ pull_key_features(positive_features, negative_features, cvae, check_params.name)
 
 # Similar to the image formatter, run sections through the CVAE, then run those sections through the random forest
 # Map back to the original image and save to show where we should be looking on the samples
-map_sections(from_bin=False, crit=0, cvae_model=cvae, rf_model=forest_model, params=check_params)
+# map_sections(from_bin=False, crit=0, cvae_model=cvae, rf_model=forest_model, params=check_params)

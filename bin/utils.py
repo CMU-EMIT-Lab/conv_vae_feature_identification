@@ -88,9 +88,11 @@ def input_images(image, name, label):
     plt.show()
     return f'../outputs/{name}/input_example.png'
 
+
 def calculate_ssim(image1, image2):
-    import skimage.measure
-    return skimage.measure.compare_ssim(image1, image2, multichannel=True)
+    from skimage.metrics import structural_similarity as compare_ssim
+    return compare_ssim(image1[:, :, 0], image2[:, :, 0], channel_axis=None)
+
 
 def start_llist(latent_dim):
     log_lists = []
@@ -103,9 +105,9 @@ def start_llist(latent_dim):
 def save_loss_plot(train_loss, valid_loss, name):
     # loss plots
     plt.figure(figsize=(10, 7))
-    plt.plot(train_loss[:], color='orange', label='train loss')
-    plt.plot(valid_loss[:], color='red', label='val loss')
-    plt.ylim([0, 10000])
+    plt.plot(train_loss[:], color='orange', label='val loss')
+    plt.plot(valid_loss[:], color='red', label='train loss')
+    plt.ylim([0, 11000])
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
@@ -145,7 +147,7 @@ def loader_pbar(file, criteria, pbar):
     return pbar.set_postfix_str(f'Slicing file: {file} in {value} images')
 
 
-def save_forest(forest, importance, mse, name):
+def save_forest(forest, importance, f1, name):
     forest.to_csv(f'../outputs/{name}/ranked_latent_dims.csv')
 
     # Visualize the important encodings
@@ -155,7 +157,7 @@ def save_forest(forest, importance, mse, name):
     plt.rcParams["font.family"] = "serif"
     plt.rcParams["font.serif"] = ["Times New Roman"]
     forest.plot.bar(ax=ax, color='gray')
-    ax.set_title(f"MDI - rMSE = {np.round(mse, 2)}", fontsize=18)
+    ax.set_title(f"MDI - F1 = {np.round(f1, 2)}", fontsize=18)
     ax.set_ylabel("Mean decrease in impurity", fontsize=16)
     ax.set_xlabel("Latent Dimension", fontsize=16)
     ax.set_xlim([-0.5, 5.5])

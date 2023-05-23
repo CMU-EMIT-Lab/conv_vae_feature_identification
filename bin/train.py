@@ -11,6 +11,7 @@ from bin.utils import *
 from bin.model import *
 from bin.settings import TrainParams
 from sklearn.model_selection import KFold
+import copy
 
 def load_data(params):
     train_loader = get_dataset(
@@ -100,7 +101,7 @@ def train_model(
     name
     """
     print(f"Training Started on {params.parent_dir} Dataset")
-    ssim_scores = []
+    ssim_scores = None
     mean_ssim = None
     std_ssim = None
     if kf:
@@ -109,6 +110,9 @@ def train_model(
         images = np.concatenate([x for x, _ in datagen], axis=0)
         labels = np.concatenate([y for _, y in datagen], axis=0)
 
+        avg_ssim_scores = []
+        std_ssim_scores = []
+        ssim_scores = {}
         for fold, (train_indices, val_indices) in enumerate(kf.split(images)):
             print(f"Training Fold {fold + 1}/{k}")
             train_images_fold, train_labels_fold = images[train_indices], labels[train_indices]
@@ -150,19 +154,27 @@ def train_model(
                 update_pbar(e_loss, r_loss, k_loss, pbar)
 
             val_images_fold = np.concatenate([x for x, _, _ in k_val_set], axis=0)
-            import ipdb; ipdb.set_trace()
             mean, log_var = model.encode(val_images_fold)
             z = model.re_parameterize(mean, log_var)
             val_reconstructions = model.sample(
                 z)
-
+            ssims = []
             for i in range(len(val_images_fold)):
-                ssim = calculate_ssim(val_images_fold[i], val_reconstructions[i])
-                ssim_scores.append(ssim)
+                ssims.append(calculate_ssim(val_images_fold[i], val_reconstructions[i].numpy()))
+            ssim_scores[fold] = copy.copy(ssims)
+            avg_ssim_scores.append(np.mean(ssims))
+            std_ssim_scores.append(np.std(ssims))
 
-        mean_ssim = np.mean(ssim_scores)
-        std_ssim = np.std(ssim_scores)
-        np.savetxt(f'../outputs/{params.name}/ssim_scores.txt', ssim_scores)
+        mean_ssim = np.mean(avg_ssim_scores)
+        std_ssim = np.std(std_ssim_scores)
+        print(f'MEAN SSIM {mean_ssim}')
+        print(f'STD SSIM {std_ssim}')
+        with open(f'../outputs/{params.name}/ssim_scores.txt', 'w') as f:
+            for key, value in ssim_scores.items():
+                f.write('%s:%s:%s:%s\n' % (key, value, avg_ssim_scores[key], std_ssim_scores[key]))
+        with open(f'../outputs/{params.name}/Summary_ssim_scores.txt', 'w') as f:
+            f.write('%s:%s\n' % ('Mean', mean_ssim))
+            f.write('%s:%s\n' % ('STD', std_ssim))
 
 
     for epoch in pbar:
@@ -170,7 +182,7 @@ def train_model(
 
 
         reco_loss, elbo_loss, kl_loss = train(
-            model, train_set, params.learning_rate, kf
+            model, train_set, params.learning_rate
         )
 
         # Validate the model
