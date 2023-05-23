@@ -52,12 +52,13 @@ def save_reconstructed_images(model, epoch, test_sample, test_label, max_epoch, 
         plt.axis('off')
         listed_z["{}_{}".format(i, int(test_label[i] + 1))] = z[i, :]
 
-    plt.savefig(f'../outputs/{name}/output{epoch}.jpg')
+    plt.savefig(f'../outputs/{name}/output{epoch}.jpg', dpi=100)
     plt.close()
 
     if epoch == max_epoch:
         df = pd.DataFrame(listed_z)
         df.to_csv(f'../outputs/{name}/z_pred_sample.csv')
+    return f'../outputs/{name}/output{epoch}.jpg'
 
 
 def printer(model, branch, name):
@@ -85,7 +86,11 @@ def input_images(image, name, label):
         plt.axis("off")
     plt.savefig(f'../outputs/{name}/input_example.png', dpi=100)
     plt.show()
+    return f'../outputs/{name}/input_example.png'
 
+def calculate_ssim(image1, image2):
+    import skimage.measure
+    return skimage.measure.compare_ssim(image1, image2, multichannel=True)
 
 def start_llist(latent_dim):
     log_lists = []
