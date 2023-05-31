@@ -14,8 +14,13 @@ from bin.image_mapper import *
 from time import sleep
 import datetime
 
+# Logging start time of execution
 print(f"Start Execution: {datetime.datetime.now()}")
+
+# Display number of GPUs available
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
+
+# Display Tensorflow version
 print('Tensorflow: %s' % tf.__version__)  # print version
 
 parent_dir = 'fatigue_test'
@@ -37,12 +42,13 @@ check_params = TrainParams(
     kfolds=5
 )
 
+# If new micrographs are present, they will be formatted
 if new_micrographs:
     format_images(from_bin=False, params=check_params)  # False means we're running from main
     # Give the disk a second to notice the files
     sleep(1)
 
-# Train a new model
+# Train a new model with the given parameters
 cvae, test_ds, train_ds, ssim_scores, mean_ssim, std_ssim = train_a_model(check_params)
 print(f"End of CVAE Training: {datetime.datetime.now()}")
 
