@@ -10,14 +10,21 @@ import numpy as np
 
 
 class Encoder(tf.keras.layers.Layer):
+    # The encoder model is a Sequential model composed of several layers
+    # including Conv2D, Flatten, and Dense layers. The purpose of the encoder
+    # is to map the input images into a lower dimensional latent space.
+    # Here, the input image is passed through two Conv2D layers followed by a 
+    # Flatten layer and finally a Dense layer which outputs a vector of size latent_dim.
+    # This latent_dim-sized vector is a compact representation of the input image in the latent space. 
     def __init__(self, latent_dim, image_size, name="encoder", **kwargs):
         super(Encoder, self).__init__(name=name, **kwargs)
-
+        # Initialize latent space dimensions and image size
         self.image_size = (image_size, image_size, 1)
         self.latent_dim = latent_dim
 
-    # encoder
+    # Building the encoder network
     def build(self):
+       
         layers = [
             tf.keras.layers.InputLayer(input_shape=self.image_size),
             tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), padding='valid',
@@ -31,6 +38,7 @@ class Encoder(tf.keras.layers.Layer):
 
 
 class Decoder(tf.keras.layers.Layer):
+    # Reverse of Encoder, see comment there     
     def __init__(self, latent_dim, image_size, batch_size, name="decoder", **kwargs):
         super(Decoder, self).__init__(name=name, **kwargs)
 
@@ -38,7 +46,7 @@ class Decoder(tf.keras.layers.Layer):
         self.image_size = image_size
         self.batch_size = batch_size
 
-    # decoder
+    # Building the encoder network
     def build(self):
         layers = [
             tf.keras.layers.InputLayer(input_shape=(int(self.latent_dim/2),)),
@@ -65,6 +73,9 @@ class CVAE(tf.keras.Model):
     """Convolutional variational autoencoder."""
     def __init__(self, latent_dim, image_size, batch_size):
         super(CVAE, self).__init__()
+        # The Convolutional Variational Autoencoder (CVAE) consists of an encoder and a decoder.
+        # The encoder maps the input data into a latent space and the decoder reconstructs the input data from the latent space.
+        # Here, the encoder and decoder networks are initialized.
         self.latent_dim = latent_dim
         self.image_size = image_size
         self.batch_size = batch_size
@@ -77,20 +88,31 @@ class CVAE(tf.keras.Model):
 
     @tf.function
     def sample(self, eps=None):
+        # This function generates new data by sampling from the latent space. 
+        # If an input tensor `eps` is not provided, the function generates a tensor of size (100, latent_dim/2) with values
+        # sampled from a standard normal distribution.
+        # The sampled tensor is then passed through the decoder to generate new data.
         if eps is None:
             eps = tf.random.normal(shape=(100, int(self.latent_dim/2)))
         return self.decode(eps, apply_sigmoid=True)
 
     def encode(self, x):
+        # This function encodes the input `x` into the latent space.
+        # It returns the mean and the log variance of the learned distribution in the latent space.
         mean, log_var = tf.split(self.encoder(x), num_or_size_splits=2, axis=1)
         return mean, log_var
 
     @staticmethod
     def re_parameterize(mean, log_var):
+        # This function applies the reparameterization: 
+        # z = mean + exp(log_var / 2) * epsilon, where epsilon is sampled from a standard normal distribution.
+        # This ensures that the stochasticity of the model is taken into account when computing gradients during backpropagation.
         eps = tf.random.normal(shape=mean.shape)
         return eps * tf.exp(log_var * .5) + mean
 
     def decode(self, z, apply_sigmoid=False):
+        # This function decodes the data in the latent space back into the original input space.
+        # If `apply_sigmoid` is True, it applies the sigmoid activation function to the decoder's output.
         logit = self.decoder(z)
         if apply_sigmoid:
             probs = tf.sigmoid(logit)
@@ -99,6 +121,8 @@ class CVAE(tf.keras.Model):
 
     @staticmethod
     def log_normal_pdf(sample, mean, log_var, r_axis=1):
+        # This function computes the log of the probability density function of a normal distribution.
+        # It's used in the computation of the KL-divergence between the learned distribution and the prior distribution in the latent space.
         log2pi = tf.math.log(2. * np.pi)
         return tf.reduce_sum(
             -.5 * ((sample - mean) ** 2. * tf.exp(-log_var) + log_var + log2pi),
@@ -107,7 +131,7 @@ class CVAE(tf.keras.Model):
     @staticmethod
     def compute_loss(model, x):
         """
-        ELBO loss for VAEs:
+        Good Writeup on ELBO loss for VAEs if you don't want to read a research paper:
         https://towardsdatascience.com/variational-autoencoder-demystified-with-pytorch-implementation-3a06bee395ed
 
         We want to push the model to use similar distributions for data between images
